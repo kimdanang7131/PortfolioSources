@@ -30,7 +30,7 @@ void UCStatusComponent::BeginPlay()
 		State = Cast<UCStateComponent>(OwnerCharacter->GetComponentByClass(UCStateComponent::StaticClass()));		
 
 	// 포션 디버깅용
-	health  = MaxHealth - 10.f;
+	health  = MaxHealth;
 	stamina = MaxStamina;
 
 	GetWorld()->GetTimerManager().SetTimer(IncreaseHealthTimer, this, &UCStatusComponent::IncreaseHealth, 0.01f, true);

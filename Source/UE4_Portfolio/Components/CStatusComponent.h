@@ -17,7 +17,7 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
-		float MaxHealth = 100.f;
+		float MaxHealth = 120.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 		float MaxStamina = 100.f;
@@ -91,7 +91,7 @@ protected:
 
 private:
 	const float INCREASE_AMOUNT = 0.2f;
-	const float DECREASE_AMOUNT = 0.5f;
+	const float DECREASE_AMOUNT = 0.8f;
 
 	FTimerHandle IncreaseHealthTimer;
 	FTimerHandle DecreaseHealthTimer;

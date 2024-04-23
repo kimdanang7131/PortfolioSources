@@ -42,4 +42,7 @@ protected:
 	virtual void Hitted();
 	virtual void Dead();
 	virtual void Dodging();
+
+private:
+	bool bIsDead = false;
 };

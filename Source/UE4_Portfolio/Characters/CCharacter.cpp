@@ -4,11 +4,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Components/CInventoryComponent.h"
 #include "Components/CPostprocessComponent.h"
 #include "Components/CStatusComponent.h"
 #include "Components/CStateComponent.h"
+
 
 #include "Action/CMontageDataAsset.h"
 
@@ -107,7 +109,8 @@ void ACCharacter::Hitted()
 
 void ACCharacter::Dead()
 {
-	CLog::Print("Dead");
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	UCMontageDataAsset** MontageData = StateMontageMap.Find(State->GetStateNow());
 	FALSE_RETURN(*MontageData);
 
