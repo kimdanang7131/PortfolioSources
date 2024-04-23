@@ -34,7 +34,7 @@ public:
 	{
 		ConstructorHelpers::FClassFinder<T> asset(*InPath);
 		verifyf(asset.Succeeded(), L"asset.Succeeded()");
-
+		//
 		*OutClass = asset.Class;
 	}
 
