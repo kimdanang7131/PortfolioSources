@@ -25,7 +25,7 @@ public:
 	{
 		T* obj = Cast<T>(StaticLoadObject(T::StaticClass(), NULL, *InPath));
 		verifyf(!!obj, L"!!asset");
-		//dfdfd
+		
 		*OutObject = obj;
 	}
 
