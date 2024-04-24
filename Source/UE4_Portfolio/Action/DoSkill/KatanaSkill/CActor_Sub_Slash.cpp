@@ -54,7 +54,7 @@ void ACActor_Sub_Slash::ActorBeginOverlap(AActor* OverlappedActor, AActor* Other
 
 	if (!!Explosion)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Explosion, OtherActor->GetTransform());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Explosion, OtherActor->GetTransform(), false,EPSCPoolMethod::AutoRelease );
 	}
 }
 
