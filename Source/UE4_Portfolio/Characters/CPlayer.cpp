@@ -158,6 +158,11 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("UseItemD", EInputEvent::IE_Pressed, this, &ACPlayer::UseItemD);
 }
 
+FGenericTeamId ACPlayer::GetGenericTeamId() const
+{
+	return FGenericTeamId(TeamId);
+}
+
 void ACPlayer::OnMoveFB(float InAxis)
 {
 	FALSE_RETURN(Status->CanMove())

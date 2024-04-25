@@ -12,26 +12,46 @@ class UE4_PORTFOLIO_API ACAIController : public AAIController
 private:
 	ACAIController();
 
-//protected:
-//	virtual void BeginPlay() override;
-//
+public:
+	FORCEINLINE float GetMeleeActionRange() { return MeleeActionRange; }
+	
+protected:
+	virtual void BeginPlay() override;
+
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
-//
-//private:
-//	virtual void Tick(float DeltaTime) override;
-//
-//	UFUNCTION()
-//		void OnPerceptionUpdated(const TArray<AActor*>& UpdateActors);
-
 
 private:
-	//UPROPERTY(EditDefaultsOnly)
-	//	class UAIPerceptionComponent* Perception;
+	virtual void Tick(float DeltaTime) override;
 
-	//UPROPERTY(EditDefaultsOnly)
-	//	class UCBehaviorTree* 
 
+	UFUNCTION()
+		void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+		class UAIPerceptionComponent* Perception;
+
+	UPROPERTY(EditDefaultsOnly)
+		class UCBehaviorComponent* BehaviorComp;
+
+public:
+	float GetSightRadius();
+
+private:
+	UPROPERTY(EditAnywhere)
+		float MeleeActionRange = 150.f;
+
+	UPROPERTY(EditAnywhere)
+		bool bDrawDebug = true;
+
+	UPROPERTY(EditAnywhere)
+		float AdjustCircleHeight = 50;
+
+
+
+	//UPROPERTY(EditAnywhere, Category = "AISenseConfig")
+		
 
 private:
 	class ACEnemy* OwnerEnemy;

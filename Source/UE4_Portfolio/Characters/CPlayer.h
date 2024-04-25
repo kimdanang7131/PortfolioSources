@@ -4,12 +4,12 @@
 #include "GameFramework/Character.h"
 #include "Characters/CCombatantCharacter.h"
 #include "Structs/CFItemDataTableBase.h"
-
+#include "GenericTeamAgentInterface.h"
 #include "Characters/CTrader.h"
 #include "CPlayer.generated.h"
 
 UCLASS()
-class UE4_PORTFOLIO_API ACPlayer : public ACCombatantCharacter
+class UE4_PORTFOLIO_API ACPlayer : public ACCombatantCharacter , public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 	
@@ -46,6 +46,11 @@ protected:
 
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual FGenericTeamId GetGenericTeamId() const override;
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+		uint8 TeamId = 0;
 
 private:
 	void OnMoveFB(float InAxis);
