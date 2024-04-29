@@ -5,8 +5,7 @@
 #include "Components/CStatusComponent.h"
 #include "Components/CWeaponStateComponent.h"
 
-#include "Components/SkeletalMeshComponent.h"
-#include "Components/ShapeComponent.h"
+#include "Action/DoSkill/CDoSkill.h"
 
 #include "GameFramework/Character.h"
 
@@ -15,9 +14,11 @@
 #include "Camera/CameraShakeBase.h"
 #include "Particles/ParticleSystemComponent.h"
 
-#include "Action/DoSkill/CDoSkill.h"
-
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/ShapeComponent.h"
 #include "Components/SceneComponent.h"
+
+#include "Characters/CPlayer.h"
 
 ACWeapon::ACWeapon()
 {
@@ -26,9 +27,8 @@ ACWeapon::ACWeapon()
 
 void ACWeapon::BeginPlay()
 {
-	// OwnerCharacter, State, Status
+	// OwnerCharacter, State, Status , WeaponState
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
-
 	State  = CHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
 	Status = CHelpers::GetComponent<UCStatusComponent>(OwnerCharacter);
 	WeaponState = CHelpers::GetComponent<UCWeaponStateComponent>(OwnerCharacter);
@@ -36,7 +36,8 @@ void ACWeapon::BeginPlay()
 	Super::BeginPlay();
 
 	//GetComponents<UParticleSystemComponent>()
-
+	
+	// #1. 각 무기마다 BP에서 추가한 모든 Collision에 델리게이트를 붙여줌
 	GetComponents<UShapeComponent>(ShapeComponents);
 	for (UShapeComponent* component : ShapeComponents)
 	{
@@ -44,32 +45,36 @@ void ACWeapon::BeginPlay()
 		component->OnComponentEndOverlap.AddDynamic(this, &ACWeapon::OnComponentEndOverlap);
 	}
 
+	// #2. 나머지도 BP에서 추가한 것들 가져오기
 	GetComponents<USkeletalMeshComponent>(MeshComponents);
 	GetComponents<UParticleSystemComponent>(ParticleSystemComponents);
 
-	OffCollision();
 
+	// #3. 시작시 설정 -> 무기 콜리젼 꺼주고, Weapon에 스킬이 있다면 생성
+	OffCollision();
 	CreateWeaponSkills();
 }
 
+
+// BP에서 사용할 붙이는 함수
 void ACWeapon::AttachTo(FName InSocketName)
 {
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), InSocketName);
 }
 
 
-
-void ACWeapon::OnComponentBeginOverlap(UPrimitiveComponent* OverlaapedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ACWeapon::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	TRUE_RETURN(OwnerCharacter == OtherActor);
 	TRUE_RETURN(OwnerCharacter->GetClass() == OtherActor->GetClass());
-
 	// 이미 맞은 캐릭터라면 return
-	TRUE_RETURN(OverlappedActors.Contains(OtherActor));
+	TRUE_RETURN(OwnerCharacter->GetClass() == OtherActor->GetOwner()->GetClass());
 
+	TRUE_RETURN(OverlappedActors.Contains(OtherActor));
 	OverlappedActors.Add(OtherActor);
 
 	// Effect
+	// #1. 부딪힌 위치로부터 설정한 위치에 추가되어 Effect 발생
 	UParticleSystem* hitEffect = Datas[Index].Effect;
 	if (!!hitEffect)
 	{
@@ -80,6 +85,7 @@ void ACWeapon::OnComponentBeginOverlap(UPrimitiveComponent* OverlaapedComponent,
 	}
 
 	// HitStop
+	// #2. HitStop이 체크되어 있다면 0.001초동안 HitStop -> GlobalTimeDilation
 	float hitStop = Datas[Index].HitStop;
 	if (FMath::IsNearlyZero(hitStop) == false)
 	{
@@ -87,30 +93,37 @@ void ACWeapon::OnComponentBeginOverlap(UPrimitiveComponent* OverlaapedComponent,
 		UKismetSystemLibrary::K2_SetTimer(this, "RestoreDilation", hitStop * 1e-3f, false);
 	}
 
-	// CameraShake
-	TSubclassOf<UCameraShakeBase> shake = Datas[Index].ShakeClass;
-	if (!!shake)
-		GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(shake);
 
+	// CameraShake 
+	// #3. 공격할때만 발동 / 스킬은 따로
+	if (!State->IsSkillMode())
+	{
+		TSubclassOf<UCameraShakeBase> shake = Datas[Index].ShakeClass;
+		if (!!shake)
+			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(shake);
+	}
 
 	// 데미지 설정
+	// #4. 일반공격 / 스킬공격 각각에 데미지를 주도록
 	float Power = Datas[Index].Power;
-
 	if (State->IsSkillMode())
 		Power = SkillDatas[SkillIndex].Power;
 
+
+	// #5. 구르기만 아니면 데미지 주기
+	UCStateComponent* TargetState = Cast<UCStateComponent>(OtherActor->GetComponentByClass(UCStateComponent::StaticClass()));
+
 	FDamageEvent e;
-	OtherActor->TakeDamage(Power, e, OwnerCharacter->GetController(), this);
+	if (!TargetState->IsDodgeMode())
+		OtherActor->TakeDamage(Power, e, OwnerCharacter->GetController(), this);
 }
 
 void ACWeapon::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	//TRUE_RETURN(OwnerCharacter == OtherActor);
-	//TRUE_RETURN(OwnerCharacter->GetClass() == OtherActor->GetClass());
-
-	// -> SkillComp에서 SelectedSkillWeapon설정되었을때
-	// OverlappedActors와  나간 OtherActor비교해서 빼주기
 }
+
+
+///  아래서부터 Notify 관련 함수들 /////////////////////////////////////
 
 void ACWeapon::OnCollision()
 {
@@ -123,11 +136,13 @@ void ACWeapon::OffCollision()
 	for (UShapeComponent* component : ShapeComponents)
 		component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	// 공격하고 나서 OffCollision시 남아있을수도 있어서
 	OverlappedActors.Empty();
 }
 
 void ACWeapon::OnTrail()
 {
+	// #1. 스킬 모드 or 일반 공격 나눠서 거기에 맞춰 Trail 나오게 하기
 	if (!!Datas[Index].Trail)
 	{
 		if (State->IsSkillMode())
@@ -154,41 +169,44 @@ void ACWeapon::OffTrail()
 	if (!!Datas[Index].Trail)
 	{
 		for (UParticleSystemComponent* particleSystem : ParticleSystemComponents)
-		{
 			particleSystem->EndTrails();
-		}
 	}
 }
 
 void ACWeapon::DoAction()
 {
 	FALSE_RETURN(Datas.Num() > 0);
-	FALSE_RETURN(Status->CheckCanDoAction(Datas[Index].Power));
+	FALSE_RETURN(Status->CheckCanDoAction(Datas[Index].Power)); // Stamina 확인
 
+	// #1. bEnable이  NotifyState에 의하여 켜졌을 때 
+	//     이 함수가 다시 들어온다면 Combo로 전환
 	if (bEnable == true)
 	{
 		bCanCombo = true;
-		bEnable = false;
+		bEnable   = false;
 
 		return;
 	}
 
 	// Idle 모드 일때만 콤보 첫 공격부터 시작
 	FALSE_RETURN(State->IsIdleMode());
-	Status->SubStamina(Datas[Index].Power);
-
-	State->SetActionMode();
 
 	const FActionData& data = Datas[0];
-	if (!!data.AnimMontage)
+	if (data.AnimMontage == nullptr)
 	{
-		//CLog::Print(data.AnimMontage->GetName());
+		CLog::Print("No ActionData Error : DoAction()");
+		return;
 	}
 
+	//# 2. 공격상태 전환 후 스테미나 소비
+	State->SetActionMode();
 	OwnerCharacter->PlayAnimMontage(data.AnimMontage, data.PlayRatio, data.StartSection);
+	Status->SubStamina(Datas[Index].Power);
 
+	// #3. 애니메이션이 움직일 수 있는 상태인지 DataAsset에서 체크된걸 가져와서 적용
 	data.bCanMove ? Status->SetMove() : Status->SetStop();
 }
+
 
 
 // Notify를 통해 함수 실행 -> 콤보 가능한지 확인 후 다음 몽타주로 
@@ -198,7 +216,13 @@ void ACWeapon::Begin_DoAction()
 	FALSE_RETURN(bCanCombo);
 	FALSE_RETURN(Status->CheckCanDoAction(Datas[Index].Power));
 
-
+	if (OwnerCharacter->IsA<ACPlayer>())
+	{
+		FRotator controlRotation = OwnerCharacter->GetControlRotation();
+		FRotator newRotation = FRotator(OwnerCharacter->GetActorRotation().Pitch, controlRotation.Yaw, OwnerCharacter->GetActorRotation().Roll);
+		
+		OwnerCharacter->SetActorRotation(newRotation);
+	}
 
 	// #2. 좌클릭을 눌러 콤보가 연결되었을 때 현재 몽타주 멈추고 다음 콤보의 몽타주 재생
 	Status->SubStamina(Datas[Index].Power);
@@ -229,6 +253,10 @@ void ACWeapon::End_DoAction()
 	Index = 0;
 }
 
+///  여기까지 Notify 관련 함수들 /////////////////////////////////////
+
+
+
 void ACWeapon::RestoreDilation()
 {
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
@@ -249,14 +277,21 @@ void ACWeapon::CreateWeaponSkills()
 
 		WeaponSkills.Add(weaponSkill);
 	}
-
 }
 
+ACDoSkill* ACWeapon::GetWeaponSkill(const int32& num)
+{
+	if (WeaponSkills.IsValidIndex(num) == false)
+	{
+		CLog::Print("Invalid GetWeaponSkill()");
+		return nullptr;
+	}
+
+	return WeaponSkills[num];
+}
 
 void ACWeapon::SetSkillWeaponVisibility(bool bIsVisible)
 {
 	for (USkeletalMeshComponent* Mesh : MeshComponents)
-	{
 		Mesh->SetVisibility(bIsVisible);
-	}
 }

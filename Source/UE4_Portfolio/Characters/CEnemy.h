@@ -19,6 +19,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UWidgetComponent* HealthWidget;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+		class UCPatrolRouteComponent* PatrolRouteComp;
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 		class UBehaviorTree* BehaviorTree;

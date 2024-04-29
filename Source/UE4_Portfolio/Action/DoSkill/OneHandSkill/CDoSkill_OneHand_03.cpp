@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 
 #include "Components/CPostProcessComponent.h"
+#include "Components/CStateComponent.h"
 
 ACDoSkill_OneHand_03::ACDoSkill_OneHand_03()
 {

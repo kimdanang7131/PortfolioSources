@@ -9,6 +9,8 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Components/CStateComponent.h"
+
 
 ACActor_Sub_Slash::ACActor_Sub_Slash()
 {
@@ -50,7 +52,11 @@ void ACActor_Sub_Slash::ActorBeginOverlap(AActor* OverlappedActor, AActor* Other
 	TRUE_RETURN(CSub::CheckActorBeginOverlapped(GetOwner(), OtherActor));
 	
 	FDamageEvent e;
-	OtherActor->TakeDamage(Damage, e, GetOwner()->GetInstigatorController(), this);
+
+	UCStateComponent* TargetState = Cast<UCStateComponent>(OtherActor->GetComponentByClass(UCStateComponent::StaticClass()));
+
+	if (!TargetState->IsDodgeMode())
+		OtherActor->TakeDamage(Damage, e, GetOwner()->GetInstigatorController(), this);
 
 	if (!!Explosion)
 	{

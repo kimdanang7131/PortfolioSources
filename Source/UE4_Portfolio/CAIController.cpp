@@ -12,8 +12,6 @@
 #include "Perception/AISenseConfig_Sight.h"
 
 
-
-
 ACAIController::ACAIController()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -24,8 +22,8 @@ ACAIController::ACAIController()
 
 	Sight = CreateDefaultSubobject<UAISenseConfig_Sight>("Sight");
 
-	Sight->SightRadius = 600;
-	Sight->LoseSightRadius = 800;
+	Sight->SightRadius = 900;
+	Sight->LoseSightRadius = 1200;
 	Sight->PeripheralVisionAngleDegrees = 90;
 	Sight->SetMaxAge(2);
 
@@ -86,8 +84,6 @@ float ACAIController::GetSightRadius()
 // #1. Perception에 있는 기본 델리게이트 OneParam
 void ACAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
-	CLog::Print("Test");
-
 	TArray<AActor*> actors;
 	Perception->GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), actors);
 

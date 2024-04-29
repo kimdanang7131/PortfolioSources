@@ -7,6 +7,7 @@
 #include "Components/CStateComponent.h"
 
 #include "Action/CMontageDataAsset.h"
+#include "Components/CPatrolRouteComponent.h"
 
 ACEnemy::ACEnemy()
 {
@@ -14,7 +15,6 @@ ACEnemy::ACEnemy()
 
 	CHelpers::CreateComponent<UWidgetComponent>(this, &NameWidget, "NameWidget", GetMesh());
 	CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
-
 	
 	TSubclassOf<UCUserWidget_Name> nameClass;
 	CHelpers::GetClass<UCUserWidget_Name>(&nameClass, "WidgetBlueprint'/Game/Blueprints/Widgets/WBP_Name.WBP_Name_C'");
@@ -29,6 +29,8 @@ ACEnemy::ACEnemy()
 	HealthWidget->SetRelativeLocation(FVector(0, 0, 190));
 	HealthWidget->SetDrawSize(FVector2D(120, 20));
 	HealthWidget->SetWidgetSpace(EWidgetSpace::Screen);
+
+	CHelpers::CreateActorComponent<UCPatrolRouteComponent>(this, &PatrolRouteComp, "PatrolRouteComponent");
 }
 
 void ACEnemy::BeginPlay()
@@ -77,7 +79,8 @@ void ACEnemy::Hitted()
 
 	FVector direction = target - start;
 	direction.Normalize();
-	//LaunchCharacter(-direction * LaunchAmount, true, false);
+
+	LaunchCharacter(-direction * LaunchAmount, true, false);
 }
 
 //void ACEnemy::Dead()

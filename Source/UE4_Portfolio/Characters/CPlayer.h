@@ -67,6 +67,8 @@ private:
 	void ToggleWeaponA() override;
 	void ToggleWeaponB() override;
 
+	virtual void ExecuteDodge() override;
+
 	void ToggleSkillWindow();
 	void ToggleInventoryWindow();
 
@@ -90,7 +92,9 @@ private:
 protected:
 	virtual void Hitted() { Super::Hitted(); }
 	virtual void Dead() { Super::Dead(); }
-	virtual void Dodging() { Super::Dodging(); }
+	//virtual void Dodging();
+
+
 
 private:
 	UFUNCTION()

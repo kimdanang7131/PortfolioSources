@@ -22,6 +22,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AI")
 		float Delay = 2.0f;
 
+	UPROPERTY(EditAnywhere, Category = "AI")
+		float rInterpSpeed = 3.f;
+
 private:
 	float TotalTime = 0.0f;
 

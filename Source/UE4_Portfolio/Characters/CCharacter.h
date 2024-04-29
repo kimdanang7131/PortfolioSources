@@ -26,6 +26,8 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCStateComponent* State;
 
+
+
 	UPROPERTY(EditDefaultsOnly , Category = "StateDataAsset")
 		TMap<EStateType, class UCMontageDataAsset*> StateMontageMap;
 protected:
@@ -41,7 +43,7 @@ protected:
 
 	virtual void Hitted();
 	virtual void Dead();
-	virtual void Dodging();
+	virtual void Dodging() {};
 
 private:
 	bool bIsDead = false;

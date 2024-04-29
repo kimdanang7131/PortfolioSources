@@ -4,6 +4,7 @@
 #include "Components/BoxComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/Character.h"
+#include "Components/CStateComponent.h"
 
 ACDoSkill_TwoHand_03::ACDoSkill_TwoHand_03()
 {
@@ -21,8 +22,6 @@ ACDoSkill_TwoHand_03::ACDoSkill_TwoHand_03()
 void ACDoSkill_TwoHand_03::BeginPlay()
 {
 	Super::BeginPlay();
-	bCanRotate = true;
-	rInterpSpeed = 3.f;
 
 	OnActorBeginOverlap.AddDynamic(this, &ACDoSkill_TwoHand_03::ActorBeginOverlap);
 	OnActorEndOverlap.AddDynamic(this, &ACDoSkill_TwoHand_03::ActorEndOverlap);
@@ -74,7 +73,10 @@ void ACDoSkill_TwoHand_03::ActorBeginOverlap(AActor* OverlappedActor, AActor* Ot
 	TRUE_RETURN(CSub::CheckActorBeginOverlapped(OwnerCharacter, OtherActor));
 
 	FDamageEvent e;
-	OtherActor->TakeDamage(Data.Power, e, OwnerCharacter->GetController(), this);
+	UCStateComponent* TargetState = Cast<UCStateComponent>(OtherActor->GetComponentByClass(UCStateComponent::StaticClass()));
+
+	if (!TargetState->IsDodgeMode())
+		OtherActor->TakeDamage(Data.Power, e, OwnerCharacter->GetController(), this);
 }
 
 void ACDoSkill_TwoHand_03::ActorEndOverlap(AActor* OverlappedActor, AActor* OtherActor) 

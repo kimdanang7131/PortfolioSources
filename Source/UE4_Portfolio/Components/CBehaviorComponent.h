@@ -69,7 +69,6 @@ private:
 	UPROPERTY(EditAnywhere)
 		FName PlayerKey = "Player";
 
-
 private:
 	class UBlackboardComponent* Blackboard;
 };

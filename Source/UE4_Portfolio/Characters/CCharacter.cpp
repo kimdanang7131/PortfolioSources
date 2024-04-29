@@ -117,11 +117,5 @@ void ACCharacter::Dead()
 	PlayAnimMontage((*MontageData)->GetMontageData(0).AnimMontage, (*MontageData)->GetMontageData(0).PlayRatio, (*MontageData)->GetMontageData(0).StartSection);
 }
 
-void ACCharacter::Dodging()
-{
-	UCMontageDataAsset** MontageData = StateMontageMap.Find(State->GetStateNow());
-	FALSE_RETURN(*MontageData);
 
-	//(*MontageData)->GetMontageData(0);
-}
 

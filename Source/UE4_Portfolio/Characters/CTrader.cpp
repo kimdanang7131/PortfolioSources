@@ -4,12 +4,12 @@
 #include "Components/SphereComponent.h"
 
 #include "Components/CInventoryComponent.h"
+#include "Components/CPatrolRouteComponent.h"
 
 #include "Characters/CPlayer.h"
 
 #include "Components/WidgetComponent.h"
 #include "Widgets/CUserWidget_Name.h"
-
 
 ACTrader::ACTrader()
 {
@@ -30,6 +30,8 @@ ACTrader::ACTrader()
 
 	// BeginPlay -> NPC 걷기 속도 넣을려면 넣기
 	// GetCharacterMovement()->MaxWalkSpeed = 200.f;
+
+	CHelpers::CreateActorComponent<UCPatrolRouteComponent>(this, &PatrolRouteComp, "PatrolRouteComponent");
 }
 
 void ACTrader::BeginPlay()

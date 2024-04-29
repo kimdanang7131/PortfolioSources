@@ -22,6 +22,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 		class USphereComponent* Sphere;
 
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+		class UCPatrolRouteComponent* PatrolRouteComp;
+
 protected:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UWidgetComponent* NameWidget;

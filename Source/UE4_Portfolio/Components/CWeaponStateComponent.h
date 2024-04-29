@@ -40,7 +40,7 @@ public:
 		FORCEINLINE bool IsTwoHandMode() { return Type == EWeaponStateType::TwoHand; }
 
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE bool IsKatanaMode() { return Type == EWeaponStateType::Katana; }
+		FORCEINLINE bool IsKatanaMode()  { return Type == EWeaponStateType::Katana; }
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool IsDualBladeMode() { return Type == EWeaponStateType::DualBlade; }
@@ -59,8 +59,11 @@ public:
 	void SetKatanaMode();
 	void SetDualBladeMode();
 
-	void ToggleWeaponA();
-	void ToggleWeaponB();
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+		void ToggleWeaponA();
+
+	UFUNCTION(BlueprintCallable, Category = "Equipment")
+		void ToggleWeaponB();
 
 	bool CheckSameWeapon(class UCActionDataAsset* WeaponData);
 	void EquipWeapon(class ACWeapon* Weapon);

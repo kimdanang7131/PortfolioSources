@@ -7,6 +7,7 @@
 #include "Components/CStatusComponent.h"
 #include "Components/CStateComponent.h"
 
+#include "Action/CMontageDataAsset.h"
 
 ACCombatantCharacter::ACCombatantCharacter()
 {
@@ -43,12 +44,19 @@ void ACCombatantCharacter::OnWeaponStateTypeChanged(EWeaponStateType InPrevType,
 float ACCombatantCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	DamageInstigator = EventInstigator;
-	
 	DamageValue = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	
+
 	State->SetHittedMode();
 
 	return Status->GetHealth();
+}
+
+void ACCombatantCharacter::ExecuteDodge()
+{
+	FALSE_RETURN(State->IsIdleMode());
+
+	State->SetDodgeMode();
 }
 
 void ACCombatantCharacter::ToggleWeaponA()
@@ -61,6 +69,22 @@ void ACCombatantCharacter::ToggleWeaponB()
 	WeaponState->ToggleWeaponB();
 }
 
+void ACCombatantCharacter::Dodging()
+{
+	UCMontageDataAsset** MontageData = StateMontageMap.Find(State->GetStateNow());
+	FALSE_RETURN(*MontageData);
+
+	FVector LastVector = GetLastMovementInputVector();
+
+	if (LastVector.IsNearlyZero())
+		LastVector = CSub::GetCustomForwardVector(this);
+
+
+	FRotator DodgeDir = UKismetMathLibrary::MakeRotFromX(LastVector);
+	SetActorRotation(DodgeDir);
+
+	PlayAnimMontage((*MontageData)->GetMontageData(0).AnimMontage , (*MontageData)->GetMontageData(0).PlayRatio, (*MontageData)->GetMontageData(0).StartSection);
+}
 
 //void ACCombatantCharacter::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType)
 //{

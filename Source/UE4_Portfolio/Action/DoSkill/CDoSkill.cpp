@@ -12,46 +12,43 @@ ACDoSkill::ACDoSkill()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	SlashClass = ConstructorHelpers::FClassFinder<ACActor_Sub_Slash>(TEXT("Blueprint'/Game/Blueprints/DataAsset/Actors/SkillSubActors/BP_CActor_Sub_Slash.BP_CActor_Sub_Slash_C'")).Class;
+	//SlashClass = ConstructorHelpers::FClassFinder<ACActor_Sub_Slash>(TEXT("Blueprint'/Game/Blueprints/DataAsset/Actors/SkillSubActors/BP_CActor_Sub_Slash.BP_CActor_Sub_Slash_C'")).Class;
 }
 
 void ACDoSkill::BeginPlay()
 {
 	// OwnerCharacter, State, Status
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
-
 	State = CHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
 	Status = CHelpers::GetComponent<UCStatusComponent>(OwnerCharacter);
 
 	Super::BeginPlay();
-
-	
 }
 
 void ACDoSkill::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// #1. 스킬이 활성화되어있고 bCanRotate가 true일때만
 	if (bIsActivated)
 	{
 		if (bCanRotate)
-		{
-			OwnerFowardRInterp(DeltaTime, rInterpSpeed);
-		}
+			OwnerForwardRInterp(DeltaTime, rInterpSpeed);
 	}
 }
 
 void ACDoSkill::End_Hold()
 {
 	if (bIsActivated)
-	{
 		OwnerCharacter->GetMesh()->GetAnimInstance()->Montage_JumpToSection(TEXT("endHold"), Data.AnimMontage);
-	}
 }
 
 void ACDoSkill::Activate()
 {
 	bIsActivated = true;
+
+	// #1. OwnerWeapon에다 SkillIndex를 전달하여 SkillData의 데미지를
+	//     적용할 수 있도록 설정 ( 근접공격도 같이 하므로 )
 	State->SetSkillMode();
 	OwnerWeapon->SetSkillIndex(index);
 
@@ -71,36 +68,38 @@ void ACDoSkill::Deactivate()
 	//Status->SetControl();
 }
 
-// NotifyState -> 내려치기 시작할때의 위치 저장
+// NotifyState -> 휘두르기 시작할때의 위치 저장
 void ACDoSkill::Begin_FromSlash()
 {
-	FromSlashVec = OwnerWeapon->GetActorLocation();
+	fromSlashVec = OwnerWeapon->GetActorLocation();
 }
 
-// NotifyState -> 내려치고나서의 위치 저장 및 검기 발사
+// NotifyState -> 휘두르고 나서 위치 저장 및 검기 발사
 void ACDoSkill::End_FromSlash()
 {
-	// #1. 캐릭터의 정면에서 검기를 발사하기 위해
-	EndSlashVec = OwnerWeapon->GetActorLocation();
+	if (SlashClass == nullptr)
+		return;
+
+	// #1. 캐릭터의 정면에서 검기 발사 위치
+	endSlashVec = OwnerWeapon->GetActorLocation();
 	FVector forward = CSub::GetCustomForwardVector(OwnerCharacter);
 	forward *= 100.f;
 
-	// #2. 검을 내려치기 전 , 내려친 후의 벡터방향을 이용하여 각도 구하기
+	// #2. 검을 휘두르기 전 , 휘두른 후의 벡터방향을 이용하여 각도 구하기
 	float degree = 0.f;
 	{
 		// #3. UpVector와 검을 휘두른 방향을 내적하여 각도 구하기
-		FVector SlashVec = (EndSlashVec - FromSlashVec).GetSafeNormal();
+		FVector slashVec = (endSlashVec - fromSlashVec).GetSafeNormal();
 		FVector upVec = CSub::GetCustomUpVector(OwnerCharacter);
 
-		float dotProduct = SlashVec | upVec;
+		float dotProduct = slashVec | upVec;
 		float dotAngle = acos(dotProduct);
 
 		// #4. 라디안 - 각도 변환
 		dotAngle = (180.f / PI) * dotAngle;
 
-
-		// #5. 외적하여 왼오 구분 -> Z축( 0,0,1 ) 기준으로 외적하기 때문에 2차원 평면 ( 원래는 X ,Y -> Z ,Y 평면 기준 X에서 오른손의 법칙이 발동됨 )
-		FVector crossProduct = SlashVec ^ upVec;
+		// #5. YZ축 기준 외적 -> X축 오른손의 법칙
+		FVector crossProduct = slashVec ^ upVec;
 		if (crossProduct.X < 0)
 			dotAngle *= -1;
 
@@ -133,25 +132,34 @@ void ACDoSkill::OffAttackByTimer()
 
 void ACDoSkill::GetWeaponOverlappedActors()
 {
-	//CLog::Print("GetWeaponDoSkill");
+	// #1. 중복제거 , 적이 많을때를 위해 Set에 저장
 	TSet<AActor*> HittedActors = OwnerWeapon->GetOverlappedActors();
 
+	// #2. 스킬 사용중 검에 닿은 액터들의 State 파악 후 Dodge 아니면 데미지
 	FDamageEvent e;
 	for (AActor* hittedActor : HittedActors)
-		hittedActor->TakeDamage(Data.Power, e, OwnerCharacter->GetController(), this);
+	{
+		UCStateComponent* TargetState = Cast<UCStateComponent>(hittedActor->GetComponentByClass(UCStateComponent::StaticClass()));
+		
+		if (!TargetState->IsDodgeMode())
+			hittedActor->TakeDamage(Data.Power, e, OwnerCharacter->GetController(), this);
+	}
+		
 }
 
-void ACDoSkill::OwnerFowardRInterp(const float& DeltaTime, const float& InterpSpeed)
+// #1. 공격중에 bCanRotate가 true일때만 자연스럽게 회전하며 공격
+void ACDoSkill::OwnerForwardRInterp(const float& deltaTime, const float& interpSpeed)
 {
-	float OwnerControllerYaw = OwnerCharacter->GetControlRotation().Yaw;
-
-	FRotator OwnerRotator = OwnerCharacter->GetActorRotation();
-	FRotator YawRotator = UKismetMathLibrary::MakeRotator(0, 0, OwnerControllerYaw);
-
-	FRotator InterpRotator = UKismetMathLibrary::RInterpTo(OwnerRotator, YawRotator, DeltaTime, InterpSpeed);
-
-	OwnerCharacter->SetActorRotation(InterpRotator);
+	// #2. Yaw부분만 뽑아온 Rotator 저장
+	FRotator ownerRotator = OwnerCharacter->GetActorRotation();
+	FRotator yawRotator = UKismetMathLibrary::MakeRotator(0, 0, OwnerCharacter->GetControlRotation().Yaw);
+	
+	// #3. UKismet은 블루프린트와 연계되어 오버헤드발생가능 -> FMath로 부드럽게 회전
+	FRotator interpedRotator = FMath::RInterpTo(ownerRotator, yawRotator , deltaTime, interpSpeed);
+	OwnerCharacter->SetActorRotation(interpedRotator);
 }
+
+
 
 
 void ACDoSkill::test()

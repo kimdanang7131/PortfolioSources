@@ -18,38 +18,47 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-protected:
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
-		class USceneComponent* Scene;
+	/// <ComponentBeginOverlap>
+    /// 멀티캐스트 델리게이트를 이용하여 BP에 설정한 모든 ShapeComponents의 OnComponentBeginOverlap -> 등록
+    /// 멀티캐스트를 통하여 한 이유는 DualWeapon 때문
+    /// </ComponentBeginOverlap>
+public:
+	UFUNCTION()
+		void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:
 	FORCEINLINE void SetDatas(TArray<FActionData> InDatas) { Datas = InDatas; }
 	FORCEINLINE void SetSkillDatas(TArray<FSkillData> InDatas) { SkillDatas = InDatas; }
 	FORCEINLINE void SetSkillIndex(const int32& InIndex) { SkillIndex = InIndex; }
-	class ACDoSkill* GetWeaponSkill(const int32& num) { return WeaponSkills[num]; }
-	void SetSkillWeaponVisibility(bool bIsVisible);
+
+	FORCEINLINE void EnableCombo()  { bEnable = true; }
+	FORCEINLINE void DisableCombo() { bEnable = false; }
+
+	FORCEINLINE void SetWeaponStateType(const EWeaponStateType& type) { Type = type; }
+	FORCEINLINE int32 GetWeaponStateType() { return static_cast<int32>(Type); }
 
 	FORCEINLINE TSet<class AActor*> GetOverlappedActors() { return OverlappedActors; }
 
 	UFUNCTION(BlueprintCallable)
-		FORCEINLINE USkeletalMeshComponent* GetOwnerMesh() { return OwnerCharacter->GetMesh(); }
+		 USkeletalMeshComponent* GetOwnerMesh() { return OwnerCharacter->GetMesh(); }
+
+	////// 소켓 이름
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		 FName GetSocketOnEquippedLeft() {    return TEXT("hand_l_weapon"); }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-		 FName GetSocketOnEquippedLeft() { return TEXT("hand_l_weapon"); }
+		 FName GetSocketOnEquippedRight() {   return TEXT("hand_r_weapon"); }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-		 FName GetSocketOnEquippedRight() { return TEXT("hand_r_weapon"); }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-		 FName GetSocketOnUnequippedLeft() { return TEXT("spine_03_l_weapon"); }
+		 FName GetSocketOnUnequippedLeft() {  return TEXT("spine_03_l_weapon"); }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		 FName GetSocketOnUnequippedRight() { return TEXT("spine_03_r_weapon"); }
 
 public:
-	FORCEINLINE void EnableCombo() { bEnable = true; }
-	FORCEINLINE void DisableCombo() { bEnable = false; }
-
 	UFUNCTION(BlueprintImplementableEvent)
 		 void OnEquip();
 	UFUNCTION(BlueprintImplementableEvent)
@@ -58,43 +67,39 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void AttachTo(FName InSocketName);
 
-
-	FORCEINLINE void SetWeaponStateType(const EWeaponStateType& type) { Type = type; }
-	FORCEINLINE int32 GetWeaponStateType() { return static_cast<int32>(Type); }
-
-	// 멀티캐스트 델리게이트를 이용하여 ShapeComponents의 OnComponentBeginOverlap -> 등록
-	// 멀티캐스트를 통하여 한 이유는 DualWeapon 때문
-public:
+	// HitStop 사용시
 	UFUNCTION()
-		void OnComponentBeginOverlap(UPrimitiveComponent* OverlaapedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		void RestoreDilation();
 
-	UFUNCTION()
-		void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-
+	// Notify 관련 일반함수
 public:
+	// DoAction
 	void OnCollision();
 	void OffCollision();
 
-	void OnTrail();
-	void OffTrail();
-
-public:
 	void DoAction();
 	void Begin_DoAction();
 	void End_DoAction();
 
-	void RestoreDilation();
-
+	// DoSkill
 	void CreateWeaponSkills();
-	//void PlayWeaponSkill()
-#pragma region Components + OwnerCharacter
+	class ACDoSkill* GetWeaponSkill(const int32& num);
+	void SetSkillWeaponVisibility(bool bIsVisible);
 
+	// 공용
+	void OnTrail();
+	void OffTrail();
+
+#pragma region Components + OwnerCharacter
+public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		EWeaponStateType Type;
 
 	// Weapon ActorComponent들 / OwnerCharacter
 protected:
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
+		class USceneComponent* Scene;
+
 	UPROPERTY(BlueprintReadWrite)
 		class ACharacter* OwnerCharacter;
 
@@ -109,30 +114,27 @@ protected:
 
 #pragma endregion 
 
-
-private:
-	TArray<class USkeletalMeshComponent*> MeshComponents;
-	TArray<class UShapeComponent*> ShapeComponents;
-	TArray<class UParticleSystemComponent*> ParticleSystemComponents;
-
 protected:
-	// DoSkill
-	TArray<FSkillData> SkillDatas;
-	TArray<class ACDoSkill*> WeaponSkills;
-
 	// DoAction
 	TArray<FActionData> Datas;
 	TSet<class AActor*> OverlappedActors;
-
 	bool bEnable;
 	bool bCanCombo;
-
 	int32 Index = 0;
+
+	// DoSkill
+	TArray<FSkillData> SkillDatas;
+	TArray<class ACDoSkill*> WeaponSkills;
 	int32 SkillIndex = 0;
 
-
-	/// test용
+	/// test
 	int32 n = 0;
+
+private:
+	// Property 관련
+	TArray<class USkeletalMeshComponent*> MeshComponents;
+	TArray<class UShapeComponent*> ShapeComponents;
+	TArray<class UParticleSystemComponent*> ParticleSystemComponents;
 };
 
 

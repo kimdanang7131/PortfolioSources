@@ -10,7 +10,7 @@ class UE4_PORTFOLIO_API ACDoSkill_TwoHand : public ACDoSkill
 	GENERATED_BODY()
 	
 public:
-	ACDoSkill_TwoHand() { PrimaryActorTick.bCanEverTick = true; }
+	ACDoSkill_TwoHand() { PrimaryActorTick.bCanEverTick = true; bCanRotate = true; rInterpSpeed = 3.f; }
 
 protected:
 	virtual void BeginPlay() { Super::BeginPlay(); }

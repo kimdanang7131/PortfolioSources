@@ -123,7 +123,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Pressed , this, &ACPlayer::OnSprint);
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Released, this, &ACPlayer::OffSprint);
 
-	//PlayerInputComponent->BindAction("Dodge", EInputEvent::IE_Pressed, this, &ACPlayer::OffSprint);
+	PlayerInputComponent->BindAction("Dodge", EInputEvent::IE_Pressed, this, &ACPlayer::ExecuteDodge);
 	PlayerInputComponent->BindAction("ActionL", EInputEvent::IE_Pressed, this, &ACPlayer::DoActionL);
 	//PlayerInputComponent->BindAction("ActionR", EInputEvent::IE_Pressed, this, &ACPlayer::OffSprint);
 	//PlayerInputComponent->BindAction("ActionM", EInputEvent::IE_Pressed, this, &ACPlayer::OffSprint);
@@ -227,6 +227,11 @@ void ACPlayer::ToggleWeaponB()
 	WeaponState->ToggleWeaponB();
 }
 
+void ACPlayer::ExecuteDodge()
+{
+	Super::ExecuteDodge();
+}
+
 void ACPlayer::SkillZ()
 {
 	Skill->SkillZ();
@@ -266,6 +271,7 @@ void ACPlayer::ClearUI()
 {
 	UIManager::SetGameModeOnly();
 }
+
 
 
 void ACPlayer::OpenTradeWindow(const TArray<FItemDataTableBase>& InTraderFItems, const int32& InMoney)

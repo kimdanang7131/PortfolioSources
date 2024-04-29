@@ -48,11 +48,7 @@ private:
 	UPROPERTY(EditAnywhere)
 		float AdjustCircleHeight = 50;
 
-
-
 	//UPROPERTY(EditAnywhere, Category = "AISenseConfig")
-		
-
 private:
 	class ACEnemy* OwnerEnemy;
 	class UAISenseConfig_Sight* Sight;

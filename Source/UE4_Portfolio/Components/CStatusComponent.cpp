@@ -155,9 +155,11 @@ void UCStatusComponent::AddStamina(const float& InAmount)
 
 void UCStatusComponent::SubStamina(const float& InAmount)
 {
-	stamina -= InAmount;
-
-	stamina = FMath::Clamp(stamina, 0.0f, MaxStamina);
+	if (OwnerCharacter->IsA<ACPlayer>())
+	{
+		stamina -= InAmount;
+		stamina = FMath::Clamp(stamina, 0.0f, MaxStamina);
+	}
 }
 
 void UCStatusComponent::SetMove()

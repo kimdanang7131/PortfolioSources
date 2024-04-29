@@ -13,14 +13,6 @@ public:
 	ACCombatantCharacter();
 
 protected:
-	UPROPERTY(VisibleDefaultsOnly)
-		class UCSkillComponent* Skill;
-
-	UPROPERTY(VisibleDefaultsOnly)
-		class UCWeaponStateComponent* WeaponState;
-
-
-protected:
 	virtual void BeginPlay() override;
 
 public:
@@ -31,10 +23,22 @@ protected:
 		void OnWeaponStateTypeChanged(EWeaponStateType InPrevType, EWeaponStateType InNewType);
 
 protected:
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCSkillComponent* Skill;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+		class UCWeaponStateComponent* WeaponState;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Launch")
+		float LaunchAmount = 50.f;
+
+protected:
 	//virtual void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType) override;
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
 
 protected:
+	virtual void ExecuteDodge();
+
 	virtual void ToggleWeaponA();
 	virtual void ToggleWeaponB();
 
@@ -45,7 +49,7 @@ protected:
 
 	virtual void Hitted()  { Super::Hitted(); }
 	virtual void Dead()    { Super::Dead(); }
-	virtual void Dodging() { Super::Dodging(); }
+	virtual void Dodging();
 protected:
 
 	class AController* DamageInstigator;

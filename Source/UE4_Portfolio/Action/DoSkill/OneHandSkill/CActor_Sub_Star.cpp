@@ -5,6 +5,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
+#include "Components/CStateComponent.h"
+
 ACActor_Sub_Star::ACActor_Sub_Star()
 {
 	Scene = CreateDefaultSubobject<USceneComponent>("Scene");
@@ -40,7 +42,13 @@ void ACActor_Sub_Star::ActorBeginOverlap(AActor* OverlappedActor, AActor* OtherA
 	//NULL_RETURN(character);
 	// ApplyDamage ( TakeDamage )
 	FDamageEvent e;
-	OtherActor->TakeDamage(Damage, e, GetOwner()->GetInstigatorController(), this);
+
+	UCStateComponent* TargetState = Cast<UCStateComponent>(OtherActor->GetComponentByClass(UCStateComponent::StaticClass()));
+
+	if (!TargetState->IsDodgeMode())
+		OtherActor->TakeDamage(Damage, e, GetOwner()->GetInstigatorController(), this);
+
+
 
 	Projectile->StopMovementImmediately();
 	Effect->SetActive(true);
