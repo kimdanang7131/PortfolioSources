@@ -35,20 +35,6 @@ public:
 	}
 
 
-	//static void Delay(const float& delayTime)
-	//{
-	//	FTimerHandle Delay;
-	//	float DelayTime = 0.25f;
-
-	//	GetWorld()->GetTimerManager().SetTimer(Delay, FTimerDelegate::CreateLambda([&]()
-	//		{
-	//			// 코드 구현
-	//			Destroy();
-	//			// TimerHandle 초기화
-	//			GetWorld()->GetTimerManager().ClearTimer(Delay);
-	//		}), delayTime, false);	// 반복하려면 false를 true로 변경
-	//}
-
 	static AActor* FindFarthestActor(AActor* BaseActor , const TArray<AActor*>& InActors)
 	{
 		if (!InActors.Num())
@@ -107,3 +93,19 @@ public:
 		return NearestActor;
 	}
 };
+
+
+
+//static void Delay(const float& delayTime)
+//{
+//	FTimerHandle Delay;
+//	float DelayTime = 0.25f;
+
+//	GetWorld()->GetTimerManager().SetTimer(Delay, FTimerDelegate::CreateLambda([&]()
+//		{
+//			// 코드 구현
+//			Destroy();
+//			// TimerHandle 초기화
+//			GetWorld()->GetTimerManager().ClearTimer(Delay);
+//		}), delayTime, false);	// 반복하려면 false를 true로 변경
+//}

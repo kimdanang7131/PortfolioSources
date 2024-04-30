@@ -2,9 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Action/CActionDataAsset.h"
-#include "GameFramework/Character.h"
+
 #include "Components/CWeaponStateComponent.h"
+#include "Action/CActionDataAsset.h"
 #include "CWeapon.generated.h"
 
 UCLASS()
@@ -30,22 +30,25 @@ public:
 		void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:
-	FORCEINLINE void SetDatas(TArray<FActionData> InDatas) { Datas = InDatas; }
+	// ActionData로부터 SkillData 등록 , Index는 매번 Skill사용시 호출 , Skill DoAction과 연관되어있는 부분 스킬사용시 호출
 	FORCEINLINE void SetSkillDatas(TArray<FSkillData> InDatas) { SkillDatas = InDatas; }
 	FORCEINLINE void SetSkillIndex(const int32& InIndex) { SkillIndex = InIndex; }
+	FORCEINLINE TSet<class AActor*> GetOverlappedActors() { return OverlappedActors; }
 
-	FORCEINLINE void EnableCombo()  { bEnable = true; }
-	FORCEINLINE void DisableCombo() { bEnable = false; }
-
+	// ActionData로부터 WeaponData 등록
+	FORCEINLINE void SetDatas(TArray<FActionData> InDatas) { Datas = InDatas; }
 	FORCEINLINE void SetWeaponStateType(const EWeaponStateType& type) { Type = type; }
 	FORCEINLINE int32 GetWeaponStateType() { return static_cast<int32>(Type); }
 
-	FORCEINLINE TSet<class AActor*> GetOverlappedActors() { return OverlappedActors; }
-
+	// Notify
+	FORCEINLINE void EnableCombo()  { bCanCombo = true; }
+	FORCEINLINE void DisableCombo() { bCanCombo = false; }
+	
+public:
+	////// 소켓 이름 , 블루프린트에서 사용 모음
 	UFUNCTION(BlueprintCallable)
-		 USkeletalMeshComponent* GetOwnerMesh() { return OwnerCharacter->GetMesh(); }
+		USkeletalMeshComponent* GetOwnerMesh();
 
-	////// 소켓 이름
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		 FName GetSocketOnEquippedLeft() {    return TEXT("hand_l_weapon"); }
 
@@ -67,6 +70,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void AttachTo(FName InSocketName);
 
+
+public:
 	// HitStop 사용시
 	UFUNCTION()
 		void RestoreDilation();
@@ -89,6 +94,9 @@ public:
 	// 공용
 	void OnTrail();
 	void OffTrail();
+
+	// 콤보 도중 피격시 Index초기화 및 설정
+	void ResetAction();
 
 #pragma region Components + OwnerCharacter
 public:
@@ -118,8 +126,8 @@ protected:
 	// DoAction
 	TArray<FActionData> Datas;
 	TSet<class AActor*> OverlappedActors;
-	bool bEnable;
-	bool bCanCombo;
+	bool bCanCombo = false;
+	bool bComboActivated = false;
 	int32 Index = 0;
 
 	// DoSkill

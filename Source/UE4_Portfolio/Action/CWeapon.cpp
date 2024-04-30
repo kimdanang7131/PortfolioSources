@@ -1,12 +1,14 @@
 #include "Action/CWeapon.h"
 #include "Global.h"
 
+#include "Characters/CPlayer.h"
 #include "Components/CStateComponent.h"
 #include "Components/CStatusComponent.h"
-#include "Components/CWeaponStateComponent.h"
+//#include "Components/CWeaponStateComponent.h" 
 
 #include "Action/DoSkill/CDoSkill.h"
 
+/////////////////////////////////////////////
 #include "GameFramework/Character.h"
 
 #include "Camera/PlayerCameraManager.h"
@@ -18,7 +20,7 @@
 #include "Components/ShapeComponent.h"
 #include "Components/SceneComponent.h"
 
-#include "Characters/CPlayer.h"
+
 
 ACWeapon::ACWeapon()
 {
@@ -89,8 +91,8 @@ void ACWeapon::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	float hitStop = Datas[Index].HitStop;
 	if (FMath::IsNearlyZero(hitStop) == false)
 	{
-		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1e-3f); // 0.001f;
-		UKismetSystemLibrary::K2_SetTimer(this, "RestoreDilation", hitStop * 1e-3f, false);
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1e-1f); // 0.1f;
+		UKismetSystemLibrary::K2_SetTimer(this, "RestoreDilation", hitStop * 1e-1f, false);
 	}
 
 
@@ -120,6 +122,20 @@ void ACWeapon::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 
 void ACWeapon::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+}
+
+USkeletalMeshComponent* ACWeapon::GetOwnerMesh()
+{
+	if (OwnerCharacter == nullptr)
+	{
+		CLog::Print("Weapon->GetOwnerMesh() Error!");
+		if (OwnerCharacter->GetMesh())
+			return nullptr;
+
+		return nullptr;
+	}
+
+	return OwnerCharacter->GetMesh();
 }
 
 
@@ -173,6 +189,18 @@ void ACWeapon::OffTrail()
 	}
 }
 
+// Action 도중 interrupt 당하여 End_DoAction을 하지 못하고 꺼졌을 예외 상황
+void ACWeapon::ResetAction()
+{
+	// #1. 콤보 인덱스 및 다른것들 모두 초기화
+	Index = 0;
+	bCanCombo       = false;
+	bComboActivated = false;
+
+	// #2. OnCollision에서 State로 OffCollision() 되기도 전에 끝났을 예외상황
+	OffCollision();
+}
+
 void ACWeapon::DoAction()
 {
 	FALSE_RETURN(Datas.Num() > 0);
@@ -180,10 +208,10 @@ void ACWeapon::DoAction()
 
 	// #1. bEnable이  NotifyState에 의하여 켜졌을 때 
 	//     이 함수가 다시 들어온다면 Combo로 전환
-	if (bEnable == true)
+	if (bCanCombo == true)
 	{
-		bCanCombo = true;
-		bEnable   = false;
+		bComboActivated = true;
+		bCanCombo   = false;
 
 		return;
 	}
@@ -213,7 +241,7 @@ void ACWeapon::DoAction()
 void ACWeapon::Begin_DoAction()
 {
 	// #1. 콤보가 연결되지 않았거나 스테미나가 충분하지 않을 때
-	FALSE_RETURN(bCanCombo);
+	FALSE_RETURN(bComboActivated);
 	FALSE_RETURN(Status->CheckCanDoAction(Datas[Index].Power));
 
 	// Player만 적용 ( Controller Yaw 방향만 가져와서 회전 적용 ) -> 부드럽진 않다
@@ -229,7 +257,7 @@ void ACWeapon::Begin_DoAction()
 	Status->SubStamina(Datas[Index].Power);
 	OwnerCharacter->StopAnimMontage();
 
-	bCanCombo = false;
+	bComboActivated = false;
 	Index++;
 	
 	// #3. 데이터 에셋에 설정된 콤보 몽타주 가져와서 실행
@@ -262,6 +290,9 @@ void ACWeapon::RestoreDilation()
 {
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
 }
+
+
+////
 
 void ACWeapon::CreateWeaponSkills()
 {

@@ -27,7 +27,7 @@ private:
 
 public:
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE class ACWeapon* GetCurrentWeapon() { return WeaponNow; }
+		class ACWeapon* GetCurrentWeapon();
 
 public:
 	UFUNCTION(BlueprintPure)
@@ -68,6 +68,7 @@ public:
 	bool CheckSameWeapon(class UCActionDataAsset* WeaponData);
 	void EquipWeapon(class ACWeapon* Weapon);
 	void UnequipWeapon();
+
 
 private:
 	void SetMode(const EWeaponStateType& InType);

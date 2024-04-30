@@ -41,6 +41,17 @@ void UCWeaponStateComponent::BeginPlay()
 	}
 }
 
+ACWeapon* UCWeaponStateComponent::GetCurrentWeapon()
+{
+	if (WeaponNow == nullptr)
+	{
+		CLog::Print("WeaponStateComp->GetCurrentWeapon Error!");
+		return nullptr;
+	}
+
+	return WeaponNow;
+}
+
 void UCWeaponStateComponent::SetUnarmedMode()
 {
 	ChangeType(EWeaponStateType::Unarmed);

@@ -92,7 +92,6 @@ void ACCharacter::OnStateTypeChanged(EStateType InPrevType, EStateType InNewType
 
 void ACCharacter::Hitted()
 {
-	CLog::Print("Hitted");
 	UCMontageDataAsset** MontageData = StateMontageMap.Find(State->GetStateNow());
 	FALSE_RETURN(*MontageData);
 

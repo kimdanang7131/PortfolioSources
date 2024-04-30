@@ -8,6 +8,7 @@
 #include "Components/CStateComponent.h"
 
 #include "Action/CMontageDataAsset.h"
+#include "Action/CWeapon.h"
 
 ACCombatantCharacter::ACCombatantCharacter()
 {
@@ -68,6 +69,20 @@ void ACCombatantCharacter::ToggleWeaponB()
 {
 	WeaponState->ToggleWeaponB();
 }
+
+void ACCombatantCharacter::Hitted()
+{
+	Super::Hitted();
+
+	if (WeaponState)
+	{
+		if (WeaponState->GetCurrentWeapon())
+		{
+			WeaponState->GetCurrentWeapon()->ResetAction();
+		}
+	}
+}
+
 
 void ACCombatantCharacter::Dodging()
 {

@@ -47,7 +47,7 @@ protected:
 	virtual void SkillC() {};
 	virtual void SkillV() {};
 
-	virtual void Hitted()  { Super::Hitted(); }
+	virtual void Hitted();
 	virtual void Dead()    { Super::Dead(); }
 	virtual void Dodging();
 protected:

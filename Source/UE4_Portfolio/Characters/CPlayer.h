@@ -23,9 +23,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 private:
-	const float STAMINA_USAGE   = 10.f;
+	const float STAMINA_USAGE      = 10.f;
 	const float STAMINA_RECOVERAGE = 15.f;
-
 
 private:
 	UPROPERTY(EditDefaultsOnly)
