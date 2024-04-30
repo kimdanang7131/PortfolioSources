@@ -88,7 +88,7 @@ void ACPlayer::BeginPlay()
 	WeaponState->SetUnarmedMode();
 
 	// 나중에 지울거
-	PotionItem = CHelpers::SpawnActorOnRuntime<ACItem>(PotionItemClass, this, GetActorTransform());
+	PotionItem = CHelpers::MySpawnActor<ACItem>(PotionItemClass, this, GetActorTransform());
 }
 
 void ACPlayer::Tick(float DeltaTime)

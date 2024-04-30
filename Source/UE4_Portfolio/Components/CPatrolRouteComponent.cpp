@@ -18,7 +18,6 @@ void UCPatrolRouteComponent::BeginPlay()
 	// #1. 레벨에서 등록하므로 없을 수도 있어어 무조건 체크
 	if (PatrolRoute != nullptr)
 	{
-	
 		Spline = PatrolRoute->GetSpline();
 
 		// #2. 개수 가져오기
@@ -45,7 +44,7 @@ bool UCPatrolRouteComponent::GetDestination(FVector& OutLocation)
 		return false;
 
 	// #3. PatrolRoute중 현재의 위치 가져오기
-	OutLocation =Spline->GetLocationAtSplinePoint(routeIndex, ESplineCoordinateSpace::World);
+	OutLocation = Spline->GetLocationAtSplinePoint(routeIndex, ESplineCoordinateSpace::World);
 	
 	return true;
 }

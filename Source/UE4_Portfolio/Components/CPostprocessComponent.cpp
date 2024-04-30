@@ -5,13 +5,14 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Rendering/RenderingCommon.h"
 #include "Runtime/Engine/Classes/Materials/MaterialParameterCollectionInstance.h"
+#include "Materials/MaterialParameterCollection.h"
 
 UCPostprocessComponent::UCPostprocessComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	
 	UMaterialParameterCollection* mpcData;
-	CHelpers::GetAsset<UMaterialParameterCollection>(&mpcData, TEXT("MaterialParameterCollection'/Game/Materials/MPC_Data.MPC_Data'"));
+	CHelpers::MyFObjectFinder<UMaterialParameterCollection>(&mpcData, TEXT("MaterialParameterCollection'/Game/Materials/MPC_Data.MPC_Data'"));
 	collection = mpcData;
 }
 

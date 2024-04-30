@@ -8,8 +8,8 @@
 ACDoSkill_OneHand_01::ACDoSkill_OneHand_01()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	CHelpers::GetClass<ACActor_Sub_Star>(&starClass, "Blueprint'/Game/Blueprints/DataAsset/Actors/SkillSubActors/BP_CActor_Sub_Star.BP_CActor_Sub_Star_C'");
-	//ConstructorHelpers::FClassFinder<ACActor_Sub_Star>(TEXT("Blueprint'/Game/Blueprints/DataAsset/SkillSubActors/BP_CActor_Sub_Star.BP_CActor_Sub_Star_C'"));
+	CHelpers::MyFClassFinder<ACActor_Sub_Star>(&starClass, "Blueprint'/Game/Blueprints/DataAsset/Actors/SkillSubActors/BP_CActor_Sub_Star.BP_CActor_Sub_Star_C'");
+	//ConstructorHelpers::MyFClassFinder<ACActor_Sub_Star>(TEXT("Blueprint'/Game/Blueprints/DataAsset/SkillSubActors/BP_CActor_Sub_Star.BP_CActor_Sub_Star_C'"));
 
 	index = 0;
 }
@@ -52,7 +52,7 @@ void ACDoSkill_OneHand_01::DoSubSkill()
 			// #2. 콘텐츠 브라우저에서 Blueprint 가져와서 소환 
 			FActorSpawnParameters SpawnParameters;
 			SpawnParameters.Owner = GetOwner();
-			ACActor_Sub_Star* star = CHelpers::SpawnActorOnRuntime<ACActor_Sub_Star>(starClass, GetOwner(), GetOwner()->GetTransform());
+			ACActor_Sub_Star* star = CHelpers::MySpawnActor<ACActor_Sub_Star>(starClass, GetOwner(), GetOwner()->GetTransform());
 
 			//ACActor_Sub_Star* star = GetWorld()->SpawnActor<ACActor_Sub_Star>(starClass, GetOwner()->GetTransform(), SpawnParameters);
 			// #3. Owner의 정면위치에서 일정한 간격을 두고 소환할때 필요한 값들
@@ -78,7 +78,7 @@ void ACDoSkill_OneHand_01::DoSubSkill()
 		// #2. 콘텐츠 브라우저에서 Blueprint 가져와서 소환 
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.Owner = GetOwner();
-		ACActor_Sub_Star* star = CHelpers::SpawnActorOnRuntime<ACActor_Sub_Star>(starClass, GetOwner(), GetOwner()->GetTransform());
+		ACActor_Sub_Star* star = CHelpers::MySpawnActor<ACActor_Sub_Star>(starClass, GetOwner(), GetOwner()->GetTransform());
 		//ACActor_Sub_Star* star = GetWorld()->SpawnActor<ACActor_Sub_Star>(starClass, GetOwner()->GetTransform(), SpawnParameters);
 
 		// #3. Owner의 정면위치에서 일정한 간격을 두고 소환할때 필요한 값들

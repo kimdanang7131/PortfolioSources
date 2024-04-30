@@ -22,7 +22,7 @@ ACActor_Sub_Slash::ACActor_Sub_Slash()
 
 	CHelpers::CreateActorComponent<UProjectileMovementComponent>(this, &Projectile, "Projectile");
 
-	CHelpers::GetAsset<UParticleSystem>(&Explosion, "ParticleSystem'/Game/Particles/P_Hit_Fire.P_Hit_Fire'");
+	CHelpers::MyFObjectFinder<UParticleSystem>(&Explosion, "ParticleSystem'/Game/Particles/P_Hit_Fire.P_Hit_Fire'");
 
 	Projectile->InitialSpeed = 3000.f;
 	Projectile->MaxSpeed = 3000.f;

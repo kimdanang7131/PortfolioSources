@@ -16,7 +16,7 @@ protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 
-public:
+private:
 	// 도착했는지 여부 파악 크기
 	UPROPERTY(EditAnywhere)
 		float AcceptanceRadius = 50.f;

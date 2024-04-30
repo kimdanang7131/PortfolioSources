@@ -216,6 +216,7 @@ void ACWeapon::Begin_DoAction()
 	FALSE_RETURN(bCanCombo);
 	FALSE_RETURN(Status->CheckCanDoAction(Datas[Index].Power));
 
+	// Player만 적용 ( Controller Yaw 방향만 가져와서 회전 적용 ) -> 부드럽진 않다
 	if (OwnerCharacter->IsA<ACPlayer>())
 	{
 		FRotator controlRotation = OwnerCharacter->GetControlRotation();

@@ -12,7 +12,7 @@ ACDoSkill::ACDoSkill()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	//SlashClass = ConstructorHelpers::FClassFinder<ACActor_Sub_Slash>(TEXT("Blueprint'/Game/Blueprints/DataAsset/Actors/SkillSubActors/BP_CActor_Sub_Slash.BP_CActor_Sub_Slash_C'")).Class;
+	//SlashClass = ConstructorHelpers::MyFClassFinder<ACActor_Sub_Slash>(TEXT("Blueprint'/Game/Blueprints/DataAsset/Actors/SkillSubActors/BP_CActor_Sub_Slash.BP_CActor_Sub_Slash_C'")).Class;
 }
 
 void ACDoSkill::BeginPlay()
@@ -116,7 +116,7 @@ void ACDoSkill::End_FromSlash()
 
 	FTransform SpawnTransform = FTransform(SpawnRotation, SpawnLocation, SpawnScale);
 
-	ACActor_Sub_Slash* SlashActor = CHelpers::SpawnActorOnRuntime<ACActor_Sub_Slash>(SlashClass, OwnerCharacter, SpawnTransform);
+	ACActor_Sub_Slash* SlashActor = CHelpers::MySpawnActor<ACActor_Sub_Slash>(SlashClass, OwnerCharacter, SpawnTransform);
 }
 
 

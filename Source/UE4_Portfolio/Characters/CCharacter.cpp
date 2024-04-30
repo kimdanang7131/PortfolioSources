@@ -33,11 +33,11 @@ ACCharacter::ACCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	TSubclassOf<UAnimInstance> animInstance;
-	CHelpers::GetClass<UAnimInstance>(&animInstance, "AnimBlueprint'/Game/Blueprints/Characters/ABP_CCharacter.ABP_CCharacter_C'");
+	CHelpers::MyFClassFinder<UAnimInstance>(&animInstance, "AnimBlueprint'/Game/Blueprints/Characters/ABP_CCharacter.ABP_CCharacter_C'");
 	GetMesh()->SetAnimInstanceClass(animInstance);
 
 	USkeletalMesh* mesh;
-	CHelpers::GetAsset<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/Meshes/UE4_Mannequin/SK_Mannequin.SK_Mannequin'");
+	CHelpers::MyFObjectFinder<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/Meshes/UE4_Mannequin/SK_Mannequin.SK_Mannequin'");
 	GetMesh()->SetSkeletalMesh(mesh);
 
 

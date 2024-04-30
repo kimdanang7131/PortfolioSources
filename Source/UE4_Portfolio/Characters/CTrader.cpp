@@ -22,7 +22,7 @@ ACTrader::ACTrader()
 	CHelpers::CreateComponent<UWidgetComponent>(this, &NameWidget, "NameWidget", GetMesh());
 
 	TSubclassOf<UCUserWidget_Name> nameClass;
-	CHelpers::GetClass<UCUserWidget_Name>(&nameClass, "WidgetBlueprint'/Game/Blueprints/Widgets/WBP_Name.WBP_Name_C'");
+	CHelpers::MyFClassFinder<UCUserWidget_Name>(&nameClass, "WidgetBlueprint'/Game/Blueprints/Widgets/WBP_Name.WBP_Name_C'");
 	NameWidget->SetWidgetClass(nameClass);
 	NameWidget->SetRelativeLocation(FVector(0, 0, 240));
 	NameWidget->SetDrawSize(FVector2D(240, 30));

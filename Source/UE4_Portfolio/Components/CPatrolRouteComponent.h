@@ -33,10 +33,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Spline")
 		class ACPatrolRoute* PatrolRoute;
 
-protected:
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
-		class ACharacter* OwnerCharacter;
-
 private:
 	class USplineComponent* Spline;
 

@@ -12,7 +12,7 @@ class UE4_PORTFOLIO_API CHelpers
 {
 public:
 	template<typename T>
-	static void GetAsset(T** OutObject, FString InPath)
+	static void MyFObjectFinder(T** OutObject, FString InPath)
 	{
 		ConstructorHelpers::FObjectFinder<T> asset(*InPath);
 		verifyf(asset.Succeeded(), L"asset.Succeeded()");
@@ -21,7 +21,7 @@ public:
 	}
 
 	template<typename T>
-	static void GetAssetDynamic(T** OutObject, FString InPath)
+	static void MyLoadObjectDynamic(T** OutObject, FString InPath)
 	{
 		T* obj = Cast<T>(StaticLoadObject(T::StaticClass(), NULL, *InPath));
 		verifyf(!!obj, L"!!asset");
@@ -29,14 +29,22 @@ public:
 		*OutObject = obj;
 	}
 
+	/////////////////////////
+
+
+
 	template<typename T>
-	static void GetClass(TSubclassOf<T>* OutClass, FString InPath)
+	static void MyFClassFinder(TSubclassOf<T>* OutClass, FString InPath)
 	{
 		ConstructorHelpers::FClassFinder<T> asset(*InPath);
 		verifyf(asset.Succeeded(), L"asset.Succeeded()");
-		//
+
 		*OutClass = asset.Class;
 	}
+
+
+	//////////////////////////////////////////////////
+
 
 	template<typename T>
 	static void CreateComponent(AActor* InActor, T** InComponent, FName InName, USceneComponent* InParent = NULL)
@@ -59,6 +67,9 @@ public:
 		*InComponent = InActor->CreateDefaultSubobject<T>(InName);
 	}
 
+	/////////////////////////
+
+
 	template<typename T>
 	static T* GetComponent(AActor* InActor)
 	{
@@ -66,7 +77,7 @@ public:
 	}
 
 	template<typename T>
-	static void FindActors(class UWorld* InWorld, TArray<T *>& OutActors)
+	static void MyGetAllActorsOfClass(class UWorld* InWorld, TArray<T *>& OutActors)
 	{
 		OutActors.Empty();
 
@@ -78,7 +89,7 @@ public:
 	}
 
 	template<typename T>
-	static T* SpawnActorOnRuntime(TSubclassOf<T> ActorClass, AActor* Owner , FTransform spawnTransform)
+	static T* MySpawnActor(TSubclassOf<T> ActorClass, AActor* Owner , FTransform spawnTransform)
 	{
 		if (!Owner) { return nullptr; }
 
@@ -100,7 +111,7 @@ public:
 	}
 	
 	template<typename T>
-	static T* SpawnActorFromBPObject(UObject* SpawnObject, AActor* Owner)
+	static T* MySpawnActorBPObject(UObject* SpawnObject, AActor* Owner)
 	{
 		// #1. Blueprint인지 확인하는 작업 -> Blueprint인것만 다이나믹캐스트하여 RTTI로 인하여 맞는지 확인
 		UBlueprint* GeneratedBP = Cast<UBlueprint>(SpawnObject);

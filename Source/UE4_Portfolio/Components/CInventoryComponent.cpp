@@ -38,7 +38,7 @@ void UCInventoryComponent::BeginPlay()
                 if (SpawnItems.Contains(arr[i]->ItemClass) == false)
                 {
                     //CLog::Print(arr[i]->ItemName.ToString());
-                    ACItem* Item = CHelpers::SpawnActorOnRuntime<ACItem>(arr[i]->ItemClass, OwnerCharacter, FTransform::Identity);
+                    ACItem* Item = CHelpers::MySpawnActor<ACItem>(arr[i]->ItemClass, OwnerCharacter, FTransform::Identity);
 
                     if (!!Item)
                     {

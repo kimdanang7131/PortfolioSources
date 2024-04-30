@@ -17,14 +17,14 @@ ACEnemy::ACEnemy()
 	CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
 	
 	TSubclassOf<UCUserWidget_Name> nameClass;
-	CHelpers::GetClass<UCUserWidget_Name>(&nameClass, "WidgetBlueprint'/Game/Blueprints/Widgets/WBP_Name.WBP_Name_C'");
+	CHelpers::MyFClassFinder<UCUserWidget_Name>(&nameClass, "WidgetBlueprint'/Game/Blueprints/Widgets/WBP_Name.WBP_Name_C'");
 	NameWidget->SetWidgetClass(nameClass);
 	NameWidget->SetRelativeLocation(FVector(0, 0, 240));
 	NameWidget->SetDrawSize(FVector2D(240, 30));
 	NameWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
 	TSubclassOf<UCUserWidget_Health> healthClass;
-	CHelpers::GetClass<UCUserWidget_Health>(&healthClass, "WidgetBlueprint'/Game/Blueprints/Widgets/WBP_Health.WBP_Health_C'");
+	CHelpers::MyFClassFinder<UCUserWidget_Health>(&healthClass, "WidgetBlueprint'/Game/Blueprints/Widgets/WBP_Health.WBP_Health_C'");
 	HealthWidget->SetWidgetClass(healthClass);
 	HealthWidget->SetRelativeLocation(FVector(0, 0, 190));
 	HealthWidget->SetDrawSize(FVector2D(120, 20));

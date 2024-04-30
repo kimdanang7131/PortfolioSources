@@ -24,6 +24,8 @@ EBTNodeResult::Type UCBTTaskNode_Patrol::ExecuteTask(UBehaviorTreeComponent& Own
 	// #1. PatrolRouteComp를 한번만 등록시키기 위해서
 	ACAIController* Controller = Cast<ACAIController>(OwnerComp.GetOwner());
 	ACEnemy* Enemy = Cast<ACEnemy>(Controller->GetPawn());
+	// 만먁에 NPC넣을거면 따로 만들어줘야함
+	// 함수 만들어서 EBTNodeResult::Type GetTaskResult(); 해서 
 
 	if (PatrolRouteComp == nullptr)
 	{
