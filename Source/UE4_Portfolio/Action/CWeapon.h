@@ -5,7 +5,10 @@
 
 #include "Components/CWeaponStateComponent.h"
 #include "Action/CActionDataAsset.h"
+
 #include "CWeapon.generated.h"
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnLaunchCharacter, const float& inLaunchAmount);
 
 UCLASS()
 class UE4_PORTFOLIO_API ACWeapon : public AActor
@@ -18,10 +21,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	/// <ComponentBeginOverlap>
-    /// 멀티캐스트 델리게이트를 이용하여 BP에 설정한 모든 ShapeComponents의 OnComponentBeginOverlap -> 등록
-    /// 멀티캐스트를 통하여 한 이유는 DualWeapon 때문
-    /// </ComponentBeginOverlap>
+	/** 멀티캐스트 델리게이트를 이용하여 BP에 설정한 모든 ShapeComponents의 OnComponentBeginOverlap -> 등록 
+		멀티캐스트를 통하여 한 이유는 DualWeapon 때문 */
 public:
 	UFUNCTION()
 		void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -30,9 +31,13 @@ public:
 		void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 public:
+	FOnLaunchCharacter OnLaunchCharacterDelegate;
+
+public:
 	// ActionData로부터 SkillData 등록 , Index는 매번 Skill사용시 호출 , Skill DoAction과 연관되어있는 부분 스킬사용시 호출
 	FORCEINLINE void SetSkillDatas(TArray<FSkillData> InDatas) { SkillDatas = InDatas; }
 	FORCEINLINE void SetSkillIndex(const int32& InIndex) { SkillIndex = InIndex; }
+	FORCEINLINE void ExecuteSkillLaunchAmountBroadCast(const float& inLaunchAmount) { OnLaunchCharacterDelegate.Broadcast(inLaunchAmount); }
 	FORCEINLINE TSet<class AActor*> GetOverlappedActors() { return OverlappedActors; }
 
 	// ActionData로부터 WeaponData 등록
@@ -44,8 +49,25 @@ public:
 	FORCEINLINE void EnableCombo()  { bCanCombo = true; }
 	FORCEINLINE void DisableCombo() { bCanCombo = false; }
 	
+
+	/** 블루프린트에서 사용할 함수들 */
 public:
-	////// 소켓 이름 , 블루프린트에서 사용 모음
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnEquip();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnUnequip();
+
+	UFUNCTION(BlueprintCallable)
+		void AttachTo(FName InSocketName);
+
+public:
+	/** Hitstop 사용 시*/
+	UFUNCTION()
+		void RestoreDilation();
+
+#pragma region SocketName , OwnerMesh
+public:
+	/** 소켓 이름, 블루프린트에서 사용 모음 */
 	UFUNCTION(BlueprintCallable)
 		USkeletalMeshComponent* GetOwnerMesh();
 
@@ -61,20 +83,36 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		 FName GetSocketOnUnequippedRight() { return TEXT("spine_03_r_weapon"); }
 
+#pragma endregion
+
+#pragma region Components + OwnerCharacter
 public:
-	UFUNCTION(BlueprintImplementableEvent)
-		 void OnEquip();
-	UFUNCTION(BlueprintImplementableEvent)
-		 void OnUnequip();
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		EWeaponStateType Type;
 
-	UFUNCTION(BlueprintCallable)
-		void AttachTo(FName InSocketName);
+	// Weapon ActorComponent들 / OwnerCharacter
+protected:
+	UPROPERTY(BlueprintReadOnly)
+		class UCStateComponent* State;
+
+	UPROPERTY(BlueprintReadOnly)
+		class UCStatusComponent* Status;
+
+	UPROPERTY(BlueprintReadOnly)
+		class UCWeaponStateComponent* WeaponState;
 
 
-public:
-	// HitStop 사용시
-	UFUNCTION()
-		void RestoreDilation();
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
+		class USceneComponent* Scene;
+
+	UPROPERTY(BlueprintReadWrite)
+		class ACharacter* OwnerCharacter;
+
+	// 무기 피격 당했을 때
+	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Effect")
+	//	class NiagaraSystem* Niagara;
+
+#pragma endregion 
 
 	// Notify 관련 일반함수
 public:
@@ -85,6 +123,7 @@ public:
 	void DoAction();
 	void Begin_DoAction();
 	void End_DoAction();
+	void ActionSettings();
 
 	// DoSkill
 	void CreateWeaponSkills();
@@ -97,30 +136,6 @@ public:
 
 	// 콤보 도중 피격시 Index초기화 및 설정
 	void ResetAction();
-
-#pragma region Components + OwnerCharacter
-public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		EWeaponStateType Type;
-
-	// Weapon ActorComponent들 / OwnerCharacter
-protected:
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
-		class USceneComponent* Scene;
-
-	UPROPERTY(BlueprintReadWrite)
-		class ACharacter* OwnerCharacter;
-
-	UPROPERTY(BlueprintReadOnly)
-		class UCStateComponent* State;
-
-	UPROPERTY(BlueprintReadOnly)
-		class UCStatusComponent* Status;
-
-	UPROPERTY(BlueprintReadOnly)
-		class UCWeaponStateComponent* WeaponState;
-
-#pragma endregion 
 
 protected:
 	// DoAction
@@ -143,6 +158,7 @@ private:
 	TArray<class USkeletalMeshComponent*> MeshComponents;
 	TArray<class UShapeComponent*> ShapeComponents;
 	TArray<class UParticleSystemComponent*> ParticleSystemComponents;
+	//TSubclassOf<class UCMatineeCameraShake> camShake;
 };
 
 

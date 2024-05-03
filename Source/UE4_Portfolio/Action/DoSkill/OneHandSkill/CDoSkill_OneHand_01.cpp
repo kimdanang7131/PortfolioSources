@@ -8,7 +8,7 @@
 ACDoSkill_OneHand_01::ACDoSkill_OneHand_01()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	CHelpers::MyFClassFinder<ACActor_Sub_Star>(&starClass, "Blueprint'/Game/Blueprints/DataAsset/Actors/SkillSubActors/BP_CActor_Sub_Star.BP_CActor_Sub_Star_C'");
+	CHelpers::MyFClassFinder<ACActor_Sub_Star>(&starClass, "Blueprint'/Game/Blueprints/DataAsset/CSkillSubActors/ProjectileActors/BP_CActor_Sub_Star.BP_CActor_Sub_Star_C'");
 	//ConstructorHelpers::MyFClassFinder<ACActor_Sub_Star>(TEXT("Blueprint'/Game/Blueprints/DataAsset/SkillSubActors/BP_CActor_Sub_Star.BP_CActor_Sub_Star_C'"));
 
 	index = 0;

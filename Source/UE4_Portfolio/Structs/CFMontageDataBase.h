@@ -33,22 +33,31 @@ struct FActionData : public FMontageData
 
 public:
 	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UCameraShakeBase> ShakeClass;
+
+	UPROPERTY(EditAnywhere)
 		float Power = 1.0f;
+
+	UPROPERTY(EditAnywhere)
+		float StaminaUsage = 1.0f;
+
+	UPROPERTY(EditAnywhere)
+		float LaunchAmount = 40.0f;
 
 	UPROPERTY(EditAnywhere)
 		float HitStop = 0.f;
 
 	UPROPERTY(EditAnywhere)
+		bool bKnockDown = false;
+
+	UPROPERTY(EditAnywhere)
 		class UParticleSystem* Trail;
 
 	UPROPERTY(EditAnywhere)
-		class UParticleSystem* Effect;
+		class UNiagaraSystem* Effect;
 
 	UPROPERTY(EditAnywhere)
 		FTransform EffectTransform;
-
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<class UCameraShakeBase> ShakeClass;
 };
 
 USTRUCT(BlueprintType)
@@ -58,23 +67,32 @@ struct FSkillData : public FMontageData
 
 public:
 	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UCameraShakeBase> ShakeClass;
+
+	UPROPERTY(EditAnywhere)
 		TSubclassOf<class ACDoSkill> SkillClass;
 
 	UPROPERTY(EditAnywhere)
 		float Power = 1.0f;
 
 	UPROPERTY(EditAnywhere)
+		float StaminaUsage = 1.f;
+
+	UPROPERTY(EditAnywhere)
+		float LaunchAmount = 40.0f;
+
+	UPROPERTY(EditAnywhere)
 		float HitStop = 0.f;
+
+	UPROPERTY(EditAnywhere)
+		bool bKnockDown = false;
 
 	UPROPERTY(EditAnywhere)
 		class UParticleSystem* Trail;
 
 	UPROPERTY(EditAnywhere)
-		class UParticleSystem* Effect;
+		class UNiagaraSystem* Effect;
 
 	UPROPERTY(EditAnywhere)
 		FTransform EffectTransform;
-
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<class UCameraShakeBase> ShakeClass;
 };

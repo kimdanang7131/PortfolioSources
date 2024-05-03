@@ -12,6 +12,9 @@ class UE4_PORTFOLIO_API UCStatusComponent : public UActorComponent
 public:	
 	UCStatusComponent();
 
+protected:
+	virtual void BeginPlay() override;
+
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -56,9 +59,7 @@ public:
 
 	FORCEINLINE bool CheckCanDoAction(const float& InStamina) { return (stamina - InStamina) > 0; }
 
-
-protected:
-	virtual void BeginPlay() override;
+	void SetMovementSpeed(const float& InSpeed);
 
 public:
 	void AddHealth(const float& InAmount);
@@ -69,9 +70,11 @@ public:
 
 	void SetMove();
 	void SetStop();
+	void LockMoveInput(const bool& bIgnoreInput);
 
 	void SetControl();
 	void SetStopControl();
+	void LockMouseMove(const bool& bIgnoreLook);
 
 	UFUNCTION()
 		void IncreaseHealth();
@@ -83,6 +86,7 @@ public:
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class ACharacter* OwnerCharacter;
+
 
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class UCStateComponent* State;
@@ -101,6 +105,7 @@ private:
 	float health;
 	float stamina;
 
-	bool bCanMove = false;
+	bool bCanMove    = false;
 	bool bCanControl = false;
+	AController* LockController;
 };

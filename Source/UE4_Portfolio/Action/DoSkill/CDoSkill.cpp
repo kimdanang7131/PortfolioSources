@@ -1,12 +1,13 @@
 #include "Action/DoSkill/CDoSkill.h"
 #include "Global.h"
-
-#include "GameFramework/Character.h"
+//////////////////////
 #include "Components/CStateComponent.h"
 #include "Components/CStatusComponent.h"
-
-#include "Action/CWeapon.h"
+//////////////////////
 #include "Action/DoSkill/KatanaSkill/CActor_Sub_Slash.h"
+#include "Action/CWeapon.h"
+//////////////////////
+#include "GameFramework/Character.h"
 
 ACDoSkill::ACDoSkill()
 {
@@ -51,6 +52,14 @@ void ACDoSkill::Activate()
 	//     적용할 수 있도록 설정 ( 근접공격도 같이 하므로 )
 	State->SetSkillMode();
 	OwnerWeapon->SetSkillIndex(index);
+	OwnerWeapon->ExecuteSkillLaunchAmountBroadCast(Data.LaunchAmount);
+	// LaunchAmount넘겨주기
+
+	if (Data.AnimMontage == nullptr)
+	{
+		CLog::Print("Activate() Error!");
+		return;
+	}
 
 	OwnerCharacter->PlayAnimMontage(Data.AnimMontage, Data.PlayRatio , Data.StartSection);
 	
@@ -135,14 +144,23 @@ void ACDoSkill::GetWeaponOverlappedActors()
 	// #1. 중복제거 , 적이 많을때를 위해 Set에 저장
 	TSet<AActor*> HittedActors = OwnerWeapon->GetOverlappedActors();
 
+	if (Data.ShakeClass)
+	{
+		GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(Data.ShakeClass);
+	}
+
 	// #2. 스킬 사용중 검에 닿은 액터들의 State 파악 후 Dodge 아니면 데미지
 	FDamageEvent e;
+
 	for (AActor* hittedActor : HittedActors)
 	{
 		UCStateComponent* TargetState = Cast<UCStateComponent>(hittedActor->GetComponentByClass(UCStateComponent::StaticClass()));
 		
-		if (!TargetState->IsDodgeMode())
-			hittedActor->TakeDamage(Data.Power, e, OwnerCharacter->GetController(), this);
+		if (TargetState)
+		{
+			if (!TargetState->IsDodgeMode())
+				hittedActor->TakeDamage(Data.Power, e, OwnerCharacter->GetController(), this);
+		}
 	}
 		
 }

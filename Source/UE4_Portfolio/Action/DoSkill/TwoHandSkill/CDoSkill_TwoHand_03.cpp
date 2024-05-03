@@ -75,8 +75,11 @@ void ACDoSkill_TwoHand_03::ActorBeginOverlap(AActor* OverlappedActor, AActor* Ot
 	FDamageEvent e;
 	UCStateComponent* TargetState = Cast<UCStateComponent>(OtherActor->GetComponentByClass(UCStateComponent::StaticClass()));
 
-	if (!TargetState->IsDodgeMode())
-		OtherActor->TakeDamage(Data.Power, e, OwnerCharacter->GetController(), this);
+	if (TargetState)
+	{
+		if (!TargetState->IsDodgeMode())
+			OtherActor->TakeDamage(Data.Power, e, OwnerCharacter->GetController(), this);
+	}
 }
 
 void ACDoSkill_TwoHand_03::ActorEndOverlap(AActor* OverlappedActor, AActor* OtherActor) 

@@ -1,31 +1,30 @@
 #include "Characters/CPlayer.h"
 #include "Global.h"
 
-#include "GameFramework/SpringArmComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Camera/CameraComponent.h"
-#include "Animation/AnimInstance.h"
-
+ ///////////
+#include "Components/CWeaponStateComponent.h"
 #include "Components/CInventoryComponent.h"
 #include "Components/CSkillComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Components/CStatusComponent.h"
 #include "Components/CStateComponent.h"
-#include "Characters/CCombatantCharacter.h"
-#include "Components/CWeaponStateComponent.h"
 
+////////////
 #include "Managers/UIManager.h"
-
-
-// Test용
 #include "CPlayerController.h"
-#include "Components/WidgetComponent.h"
+#include "Characters/CCombatantCharacter.h"
 #include "Widgets/CUserWidget_MainUI.h"
 #include "Widgets/CUserWidget_InvenWindow.h"
-
 #include "Widgets/CUserWidget_Stamina.h"
 #include "Widgets/CUserWidget_Health.h"
 
+///////////
+#include "Components/WidgetComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Camera/CameraComponent.h"
+#include "Animation/AnimInstance.h"
 #include "Actors/CItem.h"
 
 ACPlayer::ACPlayer()
@@ -35,10 +34,7 @@ ACPlayer::ACPlayer()
 	///
 	CHelpers::CreateComponent<USpringArmComponent>(this, &SpringArm, "SpringArm", GetRootComponent());
 	CHelpers::CreateComponent<UCameraComponent>(this, &Camera, "Camera", SpringArm);
-
-	///
 	CHelpers::CreateActorComponent<UCTargetComponent>(this, &Target, "Target");
-
 
 	// 기본 SpringArm & Camera 셋팅
 	{
@@ -50,7 +46,6 @@ ACPlayer::ACPlayer()
 		SpringArm->bUsePawnControlRotation = true;
 		SpringArm->bEnableCameraLag = true;
 	}
-
 }
 
 void ACPlayer::BeginPlay()
@@ -58,36 +53,33 @@ void ACPlayer::BeginPlay()
 	Super::BeginPlay();
 
 
+	// #1. 모든 Trader갖고와서 영역 안에 있으면 교환하기 위해서 델리게이트를 등록
 	TArray<AActor*> TradersArr;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACTrader::StaticClass(), TradersArr);
 
 	for (AActor* trader : TradersArr)
 	{
 		ACTrader* castedTrader = Cast<ACTrader>(trader);
-
 		if (!!castedTrader)
 		{
-			// OpenTradeWindow 함수의 시그니처와 델리게이트의 시그니처가 일치하도록 AddDynamic 사용
 			castedTrader->TradeBeginDelegate.AddDynamic(this, &ACPlayer::OpenTradeWindow);
 			castedTrader->TradeEndDelegate.AddDynamic(this, &ACPlayer::CloseTradeWindow);
 		}
 	}
 
+	// #2. InvenWindow의 bIsPlayerInven을 적용하기 위해
+	MyController = Cast<ACPlayerController>(GetController());
+	MyController->GetPlayerMainUI()->SetPlayerInvenWindowBool();
 
-	PController = Cast<ACPlayerController>(GetController());
-	PController->GetPlayerMainUI()->SetPlayerInvenWindowBool();
-
-	HealthWidget  = PController->GetPlayerMainUI()->GetHealthBar();
-	StaminaWidget = PController->GetPlayerMainUI()->GetStaminaBar();
+	// #3. Update에서 사용하기 위해 Widget 저장하고 Status-> HealthWidget을 Timer로 컨트롤하기 위해 등록해줌
+	HealthWidget  = MyController->GetPlayerMainUI()->GetHealthBar();
+	StaminaWidget = MyController->GetPlayerMainUI()->GetStaminaBar();
 	Status->SetHealthWidget(HealthWidget);
-
 	MaxStamina = Status->GetMaxStamina();
 
-	//WeaponState->OnWeaponStateTypeChanged.AddDynamic(this, &ACPlayer::OnWeaponStateTypeChanged);
-	State->SetIdleMode();
-	WeaponState->SetUnarmedMode();
 
-	// 나중에 지울거
+
+	// Test용 나중에 지울 것
 	PotionItem = CHelpers::MySpawnActor<ACItem>(PotionItemClass, this, GetActorTransform());
 }
 
@@ -95,7 +87,7 @@ void ACPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
+	// #1. Spinting중일때 지속적으로 Stamina Update
 	if (bIsSprinting)
 	{
 		Status->SubStamina(STAMINA_USAGE * DeltaTime);
@@ -123,7 +115,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Pressed , this, &ACPlayer::OnSprint);
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Released, this, &ACPlayer::OffSprint);
 
-	PlayerInputComponent->BindAction("Dodge", EInputEvent::IE_Pressed, this, &ACPlayer::ExecuteDodge);
+	PlayerInputComponent->BindAction("Dodge", EInputEvent::IE_Pressed, this, &ACPlayer::Dodging);
 	PlayerInputComponent->BindAction("ActionL", EInputEvent::IE_Pressed, this, &ACPlayer::DoActionL);
 	//PlayerInputComponent->BindAction("ActionR", EInputEvent::IE_Pressed, this, &ACPlayer::OffSprint);
 	//PlayerInputComponent->BindAction("ActionM", EInputEvent::IE_Pressed, this, &ACPlayer::OffSprint);
@@ -158,11 +150,13 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("UseItemD", EInputEvent::IE_Pressed, this, &ACPlayer::UseItemD);
 }
 
+/** 인터페이스를 통한 팀 설정 */
 FGenericTeamId ACPlayer::GetGenericTeamId() const
 {
 	return FGenericTeamId(TeamId);
 }
 
+/** 앞뒤 움직임 */
 void ACPlayer::OnMoveFB(float InAxis)
 {
 	FALSE_RETURN(Status->CanMove())
@@ -173,6 +167,7 @@ void ACPlayer::OnMoveFB(float InAxis)
 	AddMovementInput(direction, InAxis);
 }
 
+/** 좌우 움직임 */
 void ACPlayer::OnMoveLR(float InAxis)
 {
 	FALSE_RETURN(Status->CanMove())
@@ -183,6 +178,7 @@ void ACPlayer::OnMoveLR(float InAxis)
 	AddMovementInput(direction, InAxis);
 }
 
+/** 마우스 좌우 움직임 */
 void ACPlayer::OnHorizontalLook(float InAxis)
 {
 	FALSE_RETURN(Status->CanControl())
@@ -191,6 +187,7 @@ void ACPlayer::OnHorizontalLook(float InAxis)
 	AddControllerYawInput(rate * InAxis * GetWorld()->GetDeltaSeconds());
 }
 
+/** 마우스 위아래 움직임 */
 void ACPlayer::OnVerticalLook(float InAxis)
 {
 	FALSE_RETURN(Status->CanControl())
@@ -199,6 +196,7 @@ void ACPlayer::OnVerticalLook(float InAxis)
 	AddControllerPitchInput(rate * InAxis * GetWorld()->GetDeltaSeconds());
 }
 
+/** Shift 달리기 On Off */
 void ACPlayer::OnSprint()
 {
 	FALSE_RETURN(Status->CanControl());
@@ -212,73 +210,76 @@ void ACPlayer::OffSprint()
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 }
 
+
+/** 좌클릭 공격 */
 void ACPlayer::DoActionL()
 {
 	WeaponState->DoAction();
 }
 
+/** Q 무기 장착,해제 */
 void ACPlayer::ToggleWeaponA()
 {
 	WeaponState->ToggleWeaponA();
 }
-
+/** E 무기 장착,해제 */
 void ACPlayer::ToggleWeaponB()
 {
 	WeaponState->ToggleWeaponB();
 }
 
-void ACPlayer::ExecuteDodge()
-{
-	Super::ExecuteDodge();
-}
 
+/** ZXCV 메인 스킬차에 스킬 있을 때 사용 */
 void ACPlayer::SkillZ()
 {
 	Skill->SkillZ();
 }
-
 void ACPlayer::SkillX()
 {
 	Skill->SkillX();
 }
-
 void ACPlayer::SkillC()
 {
 	Skill->SkillC();
 }
-
 void ACPlayer::SkillV()
 {
 	Skill->SkillV();
 }
-
+/** ZXCV Release 했을 때 홀드 스킬 사용 */
 void ACPlayer::End_Hold()
 {
 	Skill->End_Hold();
 }
 
+
+
+
+
+/** K 눌렀을때 스킬창 UI 오픈 */
 void ACPlayer::ToggleSkillWindow()
 {
 	Skill->ToggleSkillWindow();
 }
-
+/** I 눌렀을때 인벤토리 UI 오픈*/
 void ACPlayer::ToggleInventoryWindow()
 {
 	Inventory->ToggleInventoryWindow();
 }
-
+/** 현재 5번 눌렀을때 UIManager를 통하여 모든 UI 끄기 */
 void ACPlayer::ClearUI()
 {
 	UIManager::SetGameModeOnly();
 }
 
 
-
+/** Trader영역에 들어오면 Delegate를 통해 TraderInventory 오픈 */
 void ACPlayer::OpenTradeWindow(const TArray<FItemDataTableBase>& InTraderFItems, const int32& InMoney)
 {
 	Inventory->OpenTraderWindow(InTraderFItems , InMoney);
 }
 
+/** Trader영역을 나가면 Delegate를 통해 Trader의 Inventory 돈,아이템 업데이트 */
 void ACPlayer::CloseTradeWindow(ACTrader* InTrader)
 {
 	// 서순 제발..
@@ -289,6 +290,8 @@ void ACPlayer::CloseTradeWindow(ACTrader* InTrader)
 	// 위에꺼 다 옮기고 지워야함 2시간 날린듯
 	Inventory->CloseTraderWindow();
 }
+
+
 
 
 void ACPlayer::Test1()
@@ -312,6 +315,8 @@ void ACPlayer::Test2()
 	//	controller->GetPlayerMainUI()->GetInvenWindow()->TestAdd(0);
 	//}
 }
+
+
 
 void ACPlayer::UseItemA()
 {

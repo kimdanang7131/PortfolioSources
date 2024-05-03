@@ -14,7 +14,7 @@ class UE4_PORTFOLIO_API UCActionDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	void CustomBeginPlay(class ACharacter* InOwnerCharacter, const EWeaponStateType& type);
+	ACWeapon* CustomBeginPlay(class ACharacter* InOwnerCharacter, const EWeaponStateType& type);
 
 public:
 	FORCEINLINE class ACWeapon* GetWeapon() { return Weapon; } // 현재 장착중인 Weapon return

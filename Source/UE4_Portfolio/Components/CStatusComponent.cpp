@@ -9,8 +9,11 @@
 #include "CPlayerController.h"
 #include "Widgets/CUserWidget_Health.h"
 
+
 #include "Characters/CEnemy.h"
 #include "Characters/CPlayer.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
 
 
 
@@ -26,8 +29,12 @@ void UCStatusComponent::BeginPlay()
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 
-	if (!!OwnerCharacter)
-		State = Cast<UCStateComponent>(OwnerCharacter->GetComponentByClass(UCStateComponent::StaticClass()));		
+	if (OwnerCharacter != nullptr)
+	{
+		State = Cast<UCStateComponent>(OwnerCharacter->GetComponentByClass(UCStateComponent::StaticClass()));
+		LockController = OwnerCharacter->GetController();
+	}
+			
 
 	// 포션 디버깅용
 	health  = MaxHealth;
@@ -162,25 +169,50 @@ void UCStatusComponent::SubStamina(const float& InAmount)
 	}
 }
 
+
+// Movement
 void UCStatusComponent::SetMove()
 {
-	bCanMove = true;
+	LockMoveInput(false);
 }
 
 void UCStatusComponent::SetStop()
 {
-	bCanMove = false;
+	LockMoveInput(true);
 }
 
+void UCStatusComponent::LockMoveInput(const bool& bIgnoreInput)
+{
+	// #1. CanMove와는 반대의 값을 가짐 ( Ignore->true == bCanMove->false )
+	bCanMove = !bIgnoreInput;
+	
+	if (LockController)
+		bIgnoreInput == true ? LockController->SetIgnoreMoveInput(true) : LockController->ResetIgnoreMoveInput();
+}
+
+
+// MouseMove
 void UCStatusComponent::SetControl()
 {
-	bCanControl = true;
+	LockMouseMove(false);
 }
 
 void UCStatusComponent::SetStopControl()
 {
-	bCanControl = false;
+	LockMouseMove(true);
+}
+
+void UCStatusComponent::LockMouseMove(const bool& bIgnoreLook)
+{
+	// #1. CanControl과는 반대의 값을 가짐
+	bCanControl = !bIgnoreLook;
+
+	if (LockController)
+		bIgnoreLook == true ? LockController->SetIgnoreLookInput(true) : LockController->ResetIgnoreLookInput();
 }
 
 
-
+void UCStatusComponent::SetMovementSpeed(const float& InSpeed)
+{
+	OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed = InSpeed;
+}

@@ -8,7 +8,7 @@ UCLASS()
 class UE4_PORTFOLIO_API ACCombatantCharacter : public ACCharacter
 {
 	GENERATED_BODY()
-	
+
 public:
 	ACCombatantCharacter();
 
@@ -19,8 +19,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	UFUNCTION()
-		void OnWeaponStateTypeChanged(EWeaponStateType InPrevType, EWeaponStateType InNewType);
+	//virtual void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType) override;
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
+
+public:
+	/** DYNAMIC DELEGATE가 아니라서 UFUNCTION할 필요없음 
+	    DoAction , DoSkill을 할때마다 실행됨             */
+	FORCEINLINE const float& GetLaunchAmount() { return launchAmount; }
+	FORCEINLINE void SetLaunchAmount(const float& inLaunchAmount) { launchAmount = inLaunchAmount; }
+
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly)
@@ -29,16 +36,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 		class UCWeaponStateComponent* WeaponState;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Launch")
-		float LaunchAmount = 50.f;
 
+	/** Enemy , Player 공통적으로 실행할 함수들 */
 protected:
-	//virtual void OnStateTypeChanged(EStateType InPrevType, EStateType InNewType) override;
-	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
-
-protected:
-	virtual void ExecuteDodge();
-
 	virtual void ToggleWeaponA();
 	virtual void ToggleWeaponB();
 
@@ -46,12 +46,16 @@ protected:
 	virtual void SkillX() {};
 	virtual void SkillC() {};
 	virtual void SkillV() {};
-
+	
+	/** DataAsset State에 등록된 Animation을 실행 */
+protected:
 	virtual void Hitted();
 	virtual void Dead()    { Super::Dead(); }
 	virtual void Dodging();
-protected:
 
+protected:
+	/** TakeDamage시 Update되는 변수들 */
 	class AController* DamageInstigator;
 	float DamageValue;
+	float launchAmount = 1.f;
 };

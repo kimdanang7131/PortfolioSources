@@ -2,7 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
 #include "Action/CActionDataAsset.h"
+
 #include "CDoSkill.generated.h"
 
 
@@ -38,7 +40,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		class UCStatusComponent* Status;
 #pragma endregion
-	// 검기 어떤거 날릴지 클래스 정하기
+
+	/** 검기 어떤거 날릴지 클래스 정하기 */
 	UPROPERTY(EditAnywhere, Category = "Slash")
 		TSubclassOf<class ACActor_Sub_Slash> SlashClass;
 
@@ -75,7 +78,7 @@ protected:
 
 	// 공격 도중 회전 / 스킬 사용되었는지 여부
 	float rInterpSpeed = 1.5f;
-	bool bCanRotate = false;
+	bool bCanRotate   = false;
 	bool bIsActivated = false;
 
 	// 검기

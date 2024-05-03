@@ -44,9 +44,13 @@ void ACActor_Sub_Star::ActorBeginOverlap(AActor* OverlappedActor, AActor* OtherA
 	FDamageEvent e;
 
 	UCStateComponent* TargetState = Cast<UCStateComponent>(OtherActor->GetComponentByClass(UCStateComponent::StaticClass()));
+	
+	if (TargetState)
+	{
+		if (!TargetState->IsDodgeMode())
+			OtherActor->TakeDamage(Damage, e, GetOwner()->GetInstigatorController(), this);
+	}
 
-	if (!TargetState->IsDodgeMode())
-		OtherActor->TakeDamage(Damage, e, GetOwner()->GetInstigatorController(), this);
 
 
 

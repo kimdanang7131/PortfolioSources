@@ -69,7 +69,7 @@ private:
 	TMap<EWeaponStateType, class ACWeapon*> SkillWeapons;
 	TArray<TMap<EWeaponStateType,int32>> SkillSlotDatas;
 
-	class ACWeapon* CacheWeapon = nullptr;
+	class ACWeapon* CacheWeapon    = nullptr;
 	class ACWeapon* SkillWeaponNow = nullptr;
 
 	int32 WeaponSkillIndex = -1;

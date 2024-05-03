@@ -7,6 +7,7 @@
 
 #include "Components/CBehaviorComponent.h"
 #include "Components/CStateComponent.h"
+#include "Components/CStatusComponent.h"
 
 
 UCBTService_Melee::UCBTService_Melee()
@@ -23,11 +24,13 @@ void UCBTService_Melee::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	ACEnemy* Enemy = Cast<ACEnemy>(Controller->GetPawn());
 	UCStateComponent* State = Cast<UCStateComponent>(Enemy->GetComponentByClass(UCStateComponent::StaticClass()));
+	UCStatusComponent* Status = Cast<UCStatusComponent>(Enemy->GetComponentByClass(UCStatusComponent::StaticClass()));
 
 	// #1. 히트 당하면 AIController->BehaviorComp로 Enum 변했다고 알려주기
 	if (State->IsHittedMode())
 	{
 		BehaviorComp->SetHittedMode();
+		Status->SetMovementSpeed(0);
 		return;
 	}
 

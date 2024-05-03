@@ -17,7 +17,7 @@ void UCAnimNotify_Finish::Notify(USkeletalMeshComponent* MeshComp, UAnimSequence
 	NULL_RETURN(MeshComp);
 	NULL_RETURN(MeshComp->GetOwner());
 
-	UCStateComponent* State   = CHelpers::GetComponent<UCStateComponent>(MeshComp->GetOwner());
+	UCStateComponent*  State  = CHelpers::GetComponent<UCStateComponent>(MeshComp->GetOwner());
 	UCStatusComponent* Status = CHelpers::GetComponent<UCStatusComponent>(MeshComp->GetOwner());
 
 	NULL_RETURN(State);
@@ -31,4 +31,7 @@ void UCAnimNotify_Finish::Notify(USkeletalMeshComponent* MeshComp, UAnimSequence
 	State->SetIdleMode();
 	Status->SetMove();
 	Status->SetControl();
+	Status->SetMovementSpeed(600);
+
+	//Weapon¿« ResetAction«ÿµµ µ 
 }

@@ -7,6 +7,9 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponStateTypeChanged, EWeaponStateType, InPrevType, EWeaponStateType, InNewType);
 
+/** Weapon를 소유하고있는걸 확인하는 방식은 BP에서 등록한
+    ActionDataAsset을 통해서 GetWeapon()함수를 통하여 정보를 얻음*/
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UE4_PORTFOLIO_API UCWeaponStateComponent : public UActorComponent
 {
@@ -90,7 +93,12 @@ public:
 	void OnTrail();
 	void OffTrail();
 
+	// 무기 추가 , 삭제
+	void AddWeapon(class ACWeapon* InWeapon);
+	//void DeleteWeapon();
+
 public:
+	/** AnimInstance에 전달하기 위해 */
 	UPROPERTY(BlueprintAssignable)
 		FWeaponStateTypeChanged OnWeaponStateTypeChanged;
 

@@ -6,6 +6,7 @@
 #include "Action/CActionDataAsset.h"
 #include "Action/CWeapon.h"
 #include "CStateComponent.h"
+#include "Characters/CCombatantCharacter.h"
 
 UCWeaponStateComponent::UCWeaponStateComponent()
 {
@@ -28,27 +29,20 @@ void UCWeaponStateComponent::BeginPlay()
 		if (!!DataWeaponA)
 		{
 			WeaponDataAssets.Add(DataWeaponA);
-			DataWeaponA->CustomBeginPlay(OwnerCharacter, DataWeaponA->WeaponType);
+			AddWeapon(DataWeaponA->CustomBeginPlay(OwnerCharacter, DataWeaponA->WeaponType));
 		}
 
 		if (!!DataWeaponB)
 		{
 			WeaponDataAssets.Add(DataWeaponB);
-			DataWeaponB->CustomBeginPlay(OwnerCharacter, DataWeaponB->WeaponType);
-			CLog::Print("Equip" + DataWeaponB->GetWeapon()->GetName());
-
+			AddWeapon(DataWeaponB->CustomBeginPlay(OwnerCharacter, DataWeaponB->WeaponType));
 		}
 	}
 }
 
+// 없으면 nullptr 나오도록해야함 SkillComp때문에
 ACWeapon* UCWeaponStateComponent::GetCurrentWeapon()
 {
-	if (WeaponNow == nullptr)
-	{
-		CLog::Print("WeaponStateComp->GetCurrentWeapon Error!");
-		return nullptr;
-	}
-
 	return WeaponNow;
 }
 
@@ -113,7 +107,7 @@ void UCWeaponStateComponent::ToggleWeaponB()
 	FALSE_RETURN(State->IsIdleMode());
 
 	CLog::Print(DataWeaponB->GetWeapon()->GetName());
-	// #1. 장착 중 -> 같은 무기 -> 장착 해제
+	// #1. 장착 중  -> 같은 무기 -> 장착 해제
 	//             -> 다른 무기 -> 장착 해제 -> 다른 무기 착용
 	//
 	// #2. 장착 X  -> 다른 무기 착용
@@ -264,6 +258,24 @@ void UCWeaponStateComponent::OffTrail()
 	TRUE_RETURN(IsUnarmedMode());
 	NULL_RETURN(GetCurrentWeapon());
 	GetCurrentWeapon()->OffTrail();
+}
+
+/** WeaponState에서 등록한 DataAsset을 통하여 CustomBeginPlay를 실행하고
+    성공적으로 Weapon을 만들었으면 CWeapon을 반환받아서 그 Weapon에 
+	CombatantCharacter의 SetLaunchAmount의 함수를 연결시켜줌       */
+
+
+void UCWeaponStateComponent::AddWeapon(class ACWeapon* InWeapon)
+{
+	// deprecated -> ActionDataAsset에서 직접해줌
+	//if (OwnerCharacter)
+	//{
+	//	ACCombatantCharacter* CombatantCharacter = Cast<ACCombatantCharacter>(OwnerCharacter);
+	//	if (CombatantCharacter)
+	//	{
+	//		InWeapon->OnLaunchCharacterDelegate.AddUObject(CombatantCharacter, &ACCombatantCharacter::SetLaunchAmount);
+	//	}
+	//}
 }
 
 

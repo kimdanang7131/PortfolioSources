@@ -29,7 +29,7 @@ void ACDoSkill_DualBlade_02::Activate()
 	Super::Activate();
 
 	converter = -1.f;
-	speed = 5.f;
+	speed = 4.f;
 }
 
 void ACDoSkill_DualBlade_02::Deactivate()
@@ -40,6 +40,6 @@ void ACDoSkill_DualBlade_02::Deactivate()
 void ACDoSkill_DualBlade_02::DoSubSkill()
 {
 	converter *= -1.f;
-	speed = 15.f;
+	speed = 14.f;
 }
 

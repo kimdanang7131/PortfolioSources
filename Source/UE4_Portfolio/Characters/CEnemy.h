@@ -8,34 +8,6 @@ UCLASS()
 class UE4_PORTFOLIO_API ACEnemy : public ACCombatantCharacter
 {
 	GENERATED_BODY()
-	
-
-public:
-	FORCEINLINE class UCUserWidget_Health* GetHealthWidget() { return Health; }
-protected:
-	UPROPERTY(VisibleDefaultsOnly)
-		class UWidgetComponent* NameWidget;
-
-	UPROPERTY(VisibleDefaultsOnly)
-		class UWidgetComponent* HealthWidget;
-
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-		class UCPatrolRouteComponent* PatrolRouteComp;
-
-private:
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
-		class UBehaviorTree* BehaviorTree;
-
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
-		uint8 TeamID = 1;
-
-	//private:
-    //	UPROPERTY(VisibleDefaultsOnly)
-    //		class UCPatrolComponent* Patrol;
-    //
-public:
-	FORCEINLINE class UBehaviorTree* GetBehaviorTree() { return BehaviorTree; }
-	FORCEINLINE uint8 GetTeamID() { return TeamID; }
 
 public:
 	ACEnemy();
@@ -46,12 +18,31 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+public:
+	FORCEINLINE uint8 GetTeamID() { return TeamID; }
+	FORCEINLINE class UBehaviorTree* GetBehaviorTree() { return BehaviorTree; }
+	FORCEINLINE class UCUserWidget_Health* GetHealthWidget() { return Health; }
+
+protected:
+	UPROPERTY(VisibleDefaultsOnly)
+		class UWidgetComponent* NameWidget;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		class UWidgetComponent* HealthWidget;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+		class UCPatrolRouteComponent* PatrolRouteComp;
 
 
-	virtual void Hitted() override;
-	//virtual void Dead() override;
-	//virtual void Dodging() override;
+	/** GenericTeamID 설정은 AIController에서 , 비헤이비어트리 가져오기 위해*/
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+		class UBehaviorTree* BehaviorTree;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+		uint8 TeamID = 1;
 
 private:
+	/** Status로 넘겨주기 위한 Widget */
 	class UCUserWidget_Health* Health;
 };

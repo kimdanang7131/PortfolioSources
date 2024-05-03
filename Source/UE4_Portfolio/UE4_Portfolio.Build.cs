@@ -18,6 +18,7 @@ public class UE4_Portfolio : ModuleRules
 			"AIModule"
 			,"UMG"
 			,"Niagara"
+			,"GameplayCameras"
 		});
 
 		PublicIncludePaths.Add(ModuleDirectory);

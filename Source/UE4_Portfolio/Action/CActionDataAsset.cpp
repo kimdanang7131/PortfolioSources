@@ -7,8 +7,9 @@
 #include "GameFramework/Character.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CWeaponStateComponent.h"
+#include "Characters/CCombatantCharacter.h"
 
-void UCActionDataAsset::CustomBeginPlay(class ACharacter* InOwnerCharacter , const EWeaponStateType& type)
+ACWeapon* UCActionDataAsset::CustomBeginPlay(class ACharacter* InOwnerCharacter , const EWeaponStateType& type)
 {
 	FTransform transform;
 
@@ -19,8 +20,18 @@ void UCActionDataAsset::CustomBeginPlay(class ACharacter* InOwnerCharacter , con
 		Weapon->SetDatas(ActionDatas);
 		Weapon->SetSkillDatas(SkillDatas);
 		Weapon->SetWeaponStateType(type);
-
 		UGameplayStatics::FinishSpawningActor(Weapon, transform);
+
+		ACCombatantCharacter* CombatCharacter = Cast<ACCombatantCharacter>(InOwnerCharacter);
+		if (CombatCharacter)
+		{
+			Weapon->OnLaunchCharacterDelegate.AddUObject(CombatCharacter, &ACCombatantCharacter::SetLaunchAmount);
+		}
+		return Weapon;
+	}
+	else
+	{
+		return nullptr;
 	}
 }
 

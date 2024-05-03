@@ -49,6 +49,7 @@ void UCSkillComponent::BeginPlay()
         {
             if (It.Value() != nullptr)
             {
+                // 현재 CustomBeginPlay ACWeapon* 반환 이거 이용해서 한던지 해야함
                 It.Value()->CustomBeginPlay(OwnerCharacter, It.Key());
                 It.Value()->GetWeapon()->SetSkillWeaponVisibility(false);
                 SkillWeapons.Emplace(It.Key(), It.Value()->GetWeapon());
@@ -150,6 +151,7 @@ void UCSkillComponent::ActivateSkill(const int32& slotNum)
                 return;
             //SkillWeaponDatas.
 
+            CLog::Print(WeaponSkillIndex);
             // 해당 키 값을 사용하여 SkillWeaponDatas에서 UCActionDataAsset*을 가져옴
             ACWeapon** FoundSkillWepaon = SkillWeapons.Find(WeaponType);
 
@@ -160,7 +162,7 @@ void UCSkillComponent::ActivateSkill(const int32& slotNum)
         }
     }
 
-    if (!!SkillWeaponNow)
+    if (SkillWeaponNow != nullptr)
     {
         // #3. 장착 중이면 잠깐 Cache(저장) 해놓고 스킬 사용후 돌려주기 
         //     장착 중이지 않으면 바로 스킬 발동 후 다시 Unarmed 상태로
@@ -170,6 +172,7 @@ void UCSkillComponent::ActivateSkill(const int32& slotNum)
             WeaponState->UnequipWeapon();
 
             WeaponState->EquipWeapon(SkillWeaponNow);
+
             if (WeaponSkillIndex != -1)
                 SkillWeaponNow->GetWeaponSkill(WeaponSkillIndex)->Activate();
         }
@@ -182,7 +185,13 @@ void UCSkillComponent::ActivateSkill(const int32& slotNum)
         }
 
         if (WeaponSkillIndex != -1)
+        {
             SkillWeaponNow->SetSkillWeaponVisibility(true);
+        }
+    }
+    else
+    {
+        CLog::Print("SkillComp SkillWeaponNow Null");
     }
 }
 
@@ -270,5 +279,7 @@ void UCSkillComponent::End_Hold()
     CheckCanExecute();
 
     if (WeaponSkillIndex != -1)
-    SkillWeaponNow->GetWeaponSkill(WeaponSkillIndex)->End_Hold();
+    {
+        SkillWeaponNow->GetWeaponSkill(WeaponSkillIndex)->End_Hold();
+    }
 }
