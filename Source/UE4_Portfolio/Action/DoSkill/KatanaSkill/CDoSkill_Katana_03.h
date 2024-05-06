@@ -14,10 +14,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
 public:
 	virtual void Tick(float DeltaTime) override;
-
 
 public:
 	virtual void DoSkill() {}
@@ -26,5 +24,4 @@ public:
 public:
 	virtual void Activate() override;
 	virtual void Deactivate() override;
-
 };

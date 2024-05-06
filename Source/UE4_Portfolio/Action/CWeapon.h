@@ -8,6 +8,7 @@
 
 #include "CWeapon.generated.h"
 
+/** DoAction할때 때리는 Character에게 얼마만큼 Launch할지에 대한 정보 넘겨줄 델리게이트 */
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnLaunchCharacter, const float& inLaunchAmount);
 
 UCLASS()
@@ -30,25 +31,27 @@ public:
 	UFUNCTION()
 		void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	/** DoAction할때 때리는 Character에게 얼마만큼 Launch할지에 대한 정보 넘겨줄 델리게이트 */
 public:
 	FOnLaunchCharacter OnLaunchCharacterDelegate;
 
 public:
-	// ActionData로부터 SkillData 등록 , Index는 매번 Skill사용시 호출 , Skill DoAction과 연관되어있는 부분 스킬사용시 호출
+	/** ActionData로부터 SkillData 등록, Index는 매번 Skill사용시 호출, Skill DoAction과 연관되어있는 부분 스킬사용시 호출 */
 	FORCEINLINE void SetSkillDatas(TArray<FSkillData> InDatas) { SkillDatas = InDatas; }
 	FORCEINLINE void SetSkillIndex(const int32& InIndex) { SkillIndex = InIndex; }
 	FORCEINLINE void ExecuteSkillLaunchAmountBroadCast(const float& inLaunchAmount) { OnLaunchCharacterDelegate.Broadcast(inLaunchAmount); }
 	FORCEINLINE TSet<class AActor*> GetOverlappedActors() { return OverlappedActors; }
 
-	// ActionData로부터 WeaponData 등록
+	/** ActionData로부터 WeaponData 등록 */
 	FORCEINLINE void SetDatas(TArray<FActionData> InDatas) { Datas = InDatas; }
 	FORCEINLINE void SetWeaponStateType(const EWeaponStateType& type) { Type = type; }
 	FORCEINLINE int32 GetWeaponStateType() { return static_cast<int32>(Type); }
 
-	// Notify
+	/** Notify */
 	FORCEINLINE void EnableCombo()  { bCanCombo = true; }
 	FORCEINLINE void DisableCombo() { bCanCombo = false; }
 	
+
 
 	/** 블루프린트에서 사용할 함수들 */
 public:
@@ -83,6 +86,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		 FName GetSocketOnUnequippedRight() { return TEXT("spine_03_r_weapon"); }
 
+	FORCEINLINE FName GetParticleLocationSocketName() { return TEXT("center"); }
+		
 #pragma endregion
 
 #pragma region Components + OwnerCharacter
@@ -108,9 +113,13 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 		class ACharacter* OwnerCharacter;
 
-	// 무기 피격 당했을 때
-	//UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Effect")
-	//	class NiagaraSystem* Niagara;
+
+	/** 무기 피격 시 사운드*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Effect")
+		class UParticleSystem* BloodEffect;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Effect")
+		class USoundCue* HitSound;
 
 #pragma endregion 
 
@@ -122,6 +131,7 @@ public:
 
 	void DoAction();
 	void Begin_DoAction();
+
 	void End_DoAction();
 	void ActionSettings();
 
@@ -159,6 +169,7 @@ private:
 	TArray<class UShapeComponent*> ShapeComponents;
 	TArray<class UParticleSystemComponent*> ParticleSystemComponents;
 	//TSubclassOf<class UCMatineeCameraShake> camShake;
+
 };
 
 

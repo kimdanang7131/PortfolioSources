@@ -11,13 +11,10 @@ class UE4_PORTFOLIO_API ACDoSkill_Katana_01 : public ACDoSkill_Katana
 	
 public:
 	ACDoSkill_Katana_01() { PrimaryActorTick.bCanEverTick = true; index = 0; }
-
 protected:
 	virtual void BeginPlay() override;
-
 public:
 	virtual void Tick(float DeltaTime) override;
-
 
 public:
 	virtual void DoSkill() {}

@@ -18,6 +18,15 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+public:
+	UFUNCTION()
+		void ActorBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
+
+	UFUNCTION()
+		void ActorEndOverlap(AActor* OverlappedActor, AActor* OtherActor);
+
+#pragma region Decal + SkillSetting
+public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		class USceneComponent* Scene;
 
@@ -29,14 +38,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		class UNiagaraComponent* Niagara;
-
-public:
-	
-	UFUNCTION()
-		void ActorBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
-
-	UFUNCTION()
-		void ActorEndOverlap(AActor* OverlappedActor, AActor* OtherActor);
+#pragma endregion
 public:
 	//virtual void DoSkill() { }
 	virtual void End_Hold() override;

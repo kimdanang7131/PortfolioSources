@@ -1,11 +1,15 @@
 #include "Action/DoSkill/OneHandSkill/CDoSkill_OneHand_02.h"
 #include "Global.h"
-
+////////////////////////
+#include "Components/CPostProcessComponent.h"
+////////////////////////
 #include "Components/BoxComponent.h"
 #include "Components/DecalComponent.h"
 #include "GameFramework/Character.h"
+#include "Sound/SoundCue.h"
+////////////////////////
 
-#include "Components/CPostProcessComponent.h"
+
 
 ACDoSkill_OneHand_02::ACDoSkill_OneHand_02()
 {
@@ -106,7 +110,28 @@ void ACDoSkill_OneHand_02::End_Hold()
 	for (AActor* actor : saveActors)
 	{
 		FDamageEvent e;
-		actor->TakeDamage(Data.Power, e, OwnerCharacter->GetController(), this);
+		UCStateComponent* ActorState = Cast<UCStateComponent>(actor->GetComponentByClass(UCStateComponent::StaticClass()));
+
+		if (!!ActorState)
+		{
+			if (!ActorState->IsDodgeMode())
+			{
+				if (!!HitEffect)
+				{
+					FTransform transfrom = FTransform(FRotator::ZeroRotator, actor->GetActorLocation() , FVector(1.f));
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, transfrom, false, EPSCPoolMethod::AutoRelease);
+				}
+
+				if (!!HitSound)
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, HitSound, actor->GetActorLocation());
+				}
+
+				actor->TakeDamage(Data.Power, e, OwnerCharacter->GetController(), this);
+
+			}
+		}
+		
 
 		UCPostprocessComponent* PostProcess = Cast<UCPostprocessComponent>(actor->GetComponentByClass(UCPostprocessComponent::StaticClass()));
 		PostProcess->ResetOutline();

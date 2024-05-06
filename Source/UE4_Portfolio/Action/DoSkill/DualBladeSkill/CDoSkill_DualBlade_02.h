@@ -11,13 +11,10 @@ class UE4_PORTFOLIO_API ACDoSkill_DualBlade_02 : public ACDoSkill_DualBlade
 	
 public:
 	ACDoSkill_DualBlade_02() { PrimaryActorTick.bCanEverTick = true; index = 1; }
-
 protected:
 	virtual void BeginPlay() override;
-
 public:
 	virtual void Tick(float DeltaTime) override;
-
 
 public:
 	virtual void DoSkill() {}
@@ -27,8 +24,7 @@ public:
 public:
 	virtual void Activate() override;
 	virtual void Deactivate() override;
-
 private:
 	float converter = -1.f;
-	float speed = 5.f;
+	float speed     = 5.f;
 };

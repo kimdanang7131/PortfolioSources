@@ -14,18 +14,13 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
 public:
 	virtual void Tick(float DeltaTime) override;
-
 
 public:
 	virtual void DoSkill() {}
 	virtual void End_Hold() {}
-
-
 public:
 	virtual void Activate() override;
 	virtual void Deactivate() override;
-
 };

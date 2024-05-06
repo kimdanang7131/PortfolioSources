@@ -4,26 +4,24 @@
 #include "Characters/CPlayer.h"
 #include "Components/CStateComponent.h"
 #include "Components/CStatusComponent.h"
-//#include "Components/CWeaponStateComponent.h" 
-
-#include "Action/DoSkill/CDoSkill.h"
-
 /////////////////////////////////////////////
-#include "GameFramework/Character.h"
+#include "Action/DoSkill/CDoSkill.h"
+/////////////////////////////////////////////
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/ShapeComponent.h"
+#include "Components/SceneComponent.h"
 
+#include "GameFramework/Character.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/CameraShakeBase.h"
 #include "MatineeCameraShake.h"
 #include "CMatineeCameraShake.h"
-
 #include "Particles/ParticleSystemComponent.h"
-
-#include "Components/SkeletalMeshComponent.h"
-#include "Components/ShapeComponent.h"
-#include "Components/SceneComponent.h"
-
-
+#include "Sound/SoundCue.h"
+//#include "NiagaraComponent.h"
+//#include "NiagaraFunctionLibrary.h"
+//#include "NiagaraComponent.h"
 
 ACWeapon::ACWeapon()
 {
@@ -49,11 +47,9 @@ void ACWeapon::BeginPlay()
 		component->OnComponentBeginOverlap.AddDynamic(this, &ACWeapon::OnComponentBeginOverlap);
 		component->OnComponentEndOverlap.AddDynamic(this, &ACWeapon::OnComponentEndOverlap);
 	}
-
 	// #2. 나머지도 BP에서 추가한 것들 가져오기
 	GetComponents<USkeletalMeshComponent>(MeshComponents);
 	GetComponents<UParticleSystemComponent>(ParticleSystemComponents);
-
 
 	// #3. 시작시 설정 -> 무기 콜리젼 꺼주고, Weapon에 스킬이 있다면 생성
 	OffCollision();
@@ -66,7 +62,6 @@ void ACWeapon::AttachTo(FName InSocketName)
 {
 	AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, true), InSocketName);
 }
-
 
 /// 정리필요
 void ACWeapon::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -84,6 +79,7 @@ void ACWeapon::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	TSubclassOf<UCameraShakeBase> shake;
 	UNiagaraSystem* hitEffect;
 
+
 	// 피격 전용 스킬모드일때의 설정 따로
 	if (State->IsSkillMode())
 	{
@@ -100,35 +96,38 @@ void ACWeapon::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		hitEffect    = Datas[Index].Effect;
 	}
 
-	// #5. 구르기만 아니면 데미지 주기
+	// #1. 구르기만 아니면 데미지 주기
 	if (CSub::CustomTakeDamage(power, OtherActor, OwnerCharacter->GetController(), this))
 	{
-		// CameraShake 
+	    // #2. 피격시 나의 검의 소켓을 통하여 피 분출 Particle 
+		if (!!BloodEffect)
+		{
+			for (UShapeComponent* component : ShapeComponents)
+			{
+				FVector SocketLocation = component->GetSocketLocation(FName("Center"));
+				FTransform transfrom = FTransform(FRotator::ZeroRotator, SocketLocation, FVector(1.f));
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodEffect, transfrom, false, EPSCPoolMethod::AutoRelease);
+			}
+		}
+
+		if (!!HitSound)
+			UGameplayStatics::PlaySoundAtLocation(this, HitSound , OtherActor->GetActorLocation());
+
+		// #3. CameraShake 
 		if (shake)
 		{
 			GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(shake);
 		}
+
 		// HitStop
-        // #2. HitStop이 체크되어 있다면 0.001초동안 HitStop -> GlobalTimeDilation
+        // #4. HitStop이 체크되어 있다면 0.001초동안 HitStop -> GlobalTimeDilation
 		if (FMath::IsNearlyZero(hitStop) == false)
 		{
 			UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1e-1f); // 0.1f;
 			UKismetSystemLibrary::K2_SetTimer(this, "RestoreDilation", hitStop * 1e-1f, false);
 		}
-		// Effect관련 처리
+	
 	}
-
-
-	// Effect
-	// #1. 부딪힌 위치로부터 설정한 위치에 추가되어 Effect 발생
-	//UParticleSystem* hitEffect = Datas[Index].Effect;
-	//if (!!hitEffect)
-	//{
-	//	FTransform transform = Datas[Index].EffectTransform;
-	//	transform.AddToTranslation(OtherActor->GetActorLocation());
-	//
-	//	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), hitEffect, transform);
-	//}
 }
 
 void ACWeapon::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

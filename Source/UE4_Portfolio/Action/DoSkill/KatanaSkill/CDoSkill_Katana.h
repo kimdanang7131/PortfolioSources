@@ -24,5 +24,4 @@ public:
 public:
 	virtual void Activate() { Super::Activate(); }
 	virtual void Deactivate() { Super::Deactivate(); }
-
 };

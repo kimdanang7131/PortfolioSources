@@ -27,6 +27,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		class UBoxComponent* Box;
 
+
 private:
 	UFUNCTION()
 		void ActorBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);

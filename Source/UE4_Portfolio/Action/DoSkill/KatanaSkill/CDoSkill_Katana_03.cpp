@@ -5,13 +5,11 @@
 void ACDoSkill_Katana_03::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void ACDoSkill_Katana_03::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ACDoSkill_Katana_03::Activate()

@@ -1,10 +1,13 @@
 #include "Action/DoSkill/TwoHandSkill/CDoSkill_TwoHand_03.h"
 #include "Global.h"
-
+//////////////////////////
+#include "Components/CStateComponent.h"
+//////////////////////////
 #include "Components/BoxComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/Character.h"
-#include "Components/CStateComponent.h"
+#include "Sound/SoundCue.h"
+
 
 ACDoSkill_TwoHand_03::ACDoSkill_TwoHand_03()
 {
@@ -78,7 +81,20 @@ void ACDoSkill_TwoHand_03::ActorBeginOverlap(AActor* OverlappedActor, AActor* Ot
 	if (TargetState)
 	{
 		if (!TargetState->IsDodgeMode())
+		{
+			if (!!HitEffect)
+			{
+				FTransform transfrom = FTransform(FRotator::ZeroRotator, OtherActor->GetActorLocation(), FVector(1.f));
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, transfrom, false, EPSCPoolMethod::AutoRelease);
+			}
+
+			if (!!HitSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, HitSound, OtherActor->GetActorLocation());
+			}
+
 			OtherActor->TakeDamage(Data.Power, e, OwnerCharacter->GetController(), this);
+		}
 	}
 }
 
