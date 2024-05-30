@@ -74,6 +74,9 @@ public:
         class UCUserWidget_MainSkillSlot* FindIndexSkillMainSlot(const int32& InUseSkillIndex);
 
     UFUNCTION(BlueprintCallable, Category = "MainUI")
+        class UCUserWidget_InvenSlot* FindIndexInvenMainSlot(const int32& InUseInvenIndex);
+
+    UFUNCTION(BlueprintCallable, Category = "MainUI")
         int32 CheckSameSkillMainSlot(UTexture2D* InTexture);
 
     UFUNCTION(BlueprintCallable, Category = "MainUI")

@@ -3,7 +3,6 @@
 
 //////////////////
 #include "Components/CWeaponStateComponent.h"
-
 #include "CAnimInstance.h"
 //////////////////
 #include "GameFramework/Character.h"
@@ -42,3 +41,4 @@ void UCAnimInstance::OnWeaponStateTypeChanged(EWeaponStateType InPrevType, EWeap
 {
 	WeaponStateType = InNewType;
 }
+

@@ -21,11 +21,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-private:
-	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
+public:
+	UPROPERTY(EditAnywhere, Category = "Weapons")
 		class UCActionDataAsset* DataWeaponA;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
+	UPROPERTY(EditAnywhere, Category = "Weapons")
 		class UCActionDataAsset* DataWeaponB;
 
 public:

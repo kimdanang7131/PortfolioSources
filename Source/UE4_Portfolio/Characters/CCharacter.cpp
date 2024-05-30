@@ -1,16 +1,12 @@
 #include "Characters/CCharacter.h"
 #include "Global.h"
-
 /////////////
-
-#include "Components/CInventoryComponent.h"
+#include "Components/UIComponents/CInventoryComponent.h"
 #include "Components/CPostprocessComponent.h"
 #include "Components/CStatusComponent.h"
 #include "Components/CStateComponent.h"
-
 #include "Action/CMontageDataAsset.h"
 /////////////
-
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -106,8 +102,10 @@ void ACCharacter::Destroyed()
 void ACCharacter::Dead()
 {
 	// #1. 더이상 공격받지 않게 -> 사실 SetCanDamaged가 맞긴함
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// #1. 더이상 공격받지 않게 -> 충돌 타입 변경
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	SetCanBeDamaged(false);
 
 	// #2. State DataAsset에 등록된 애니메이션 실행
 	UCMontageDataAsset** MontageData = StateMontageMap.Find(State->GetStateNow());

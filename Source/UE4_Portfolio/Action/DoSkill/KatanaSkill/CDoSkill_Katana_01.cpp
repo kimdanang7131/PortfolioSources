@@ -4,6 +4,7 @@
 void ACDoSkill_Katana_01::BeginPlay()
 {
 	Super::BeginPlay();
+	coolTime = 11.f;
 }
 
 void ACDoSkill_Katana_01::Tick(float DeltaTime)

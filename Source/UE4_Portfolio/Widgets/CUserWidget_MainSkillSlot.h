@@ -3,10 +3,11 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Structs/CFSkillDataTableBase.h"
+#include "Interface/ISkillWidget.h"
 #include "CUserWidget_MainSkillSlot.generated.h"
 
 UCLASS()
-class UE4_PORTFOLIO_API UCUserWidget_MainSkillSlot : public UUserWidget
+class UE4_PORTFOLIO_API UCUserWidget_MainSkillSlot : public UUserWidget , public IISkillWidget
 {
 	GENERATED_BODY()
 
@@ -31,6 +32,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "SkillSlot")
 		void SetSkillActivated(bool bIsActivated);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "SkillSlot")
+		void SetCoolPercent(const float& InPercent) override;
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "SkillSlot")
+		void SetProgressTranscluent(bool bIsTranscluent) override;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "MainSkillSlot")

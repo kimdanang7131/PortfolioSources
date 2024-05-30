@@ -56,6 +56,8 @@ protected:
 public:
 	void UpdateTraderInvenDatas(TArray<FItemDataTableBase> InInvenFItems, const int32& InMoney);
 
+	/** Player가 GateWay 부딪히면 Name On/Off 설정 */
+	void SetNameVisibility(const bool& bVisible);
 public:
 	FItemTradeBeginOverlap TradeBeginDelegate;
 	FItemTradeEndOverlap TradeEndDelegate;

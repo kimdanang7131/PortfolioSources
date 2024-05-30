@@ -2,7 +2,6 @@
 
 UCStateComponent::UCStateComponent()
 {
-
 }
 
 void UCStateComponent::BeginPlay()
@@ -10,6 +9,7 @@ void UCStateComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
+#pragma region SetMode()
 void UCStateComponent::SetIdleMode()
 {
 	ChangeType(EStateType::Idle);
@@ -39,11 +39,9 @@ void UCStateComponent::SetDeadMode()
 {
 	ChangeType(EStateType::Dead);
 }
+#pragma endregion
 
-// 델리게이트 BroadCast 
-// Player에서 이 델리게이트를 구독하고 State->Set~~Mode를 하면 자동으로
-// 이 함수로 오게되고 BroadCast를 통하여 각각의 Character의 타입 바꾸기
-// 기본적으로 DYNAMIC_TWOPARAMS로 되어있고 이전타입 , 현재타입 넘겨서 같으면 아무일도 일어나지 않도록
+/** Type이 바뀌었을 때 연결된 Delegate를 통해 Character에서 거기에 맞는 StateMontageMap 애니메이션 재생 및 거기에 맞는 함수 실행 */
 void UCStateComponent::ChangeType(EStateType InType)
 {
 	EStateType prevType = Type;

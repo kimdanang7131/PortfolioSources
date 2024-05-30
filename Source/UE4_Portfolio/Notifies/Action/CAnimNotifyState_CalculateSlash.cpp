@@ -1,8 +1,7 @@
 #include "Notifies/Action/CAnimNotifyState_CalculateSlash.h"
-
 #include "Global.h"
-
-#include "Components/CSkillComponent.h"
+/////////////////////////////
+#include "Components/UIComponents/CSkillComponent.h"
 
 FString UCAnimNotifyState_CalculateSlash::GetNotifyName_Implementation() const
 {

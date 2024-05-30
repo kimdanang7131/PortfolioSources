@@ -1,6 +1,6 @@
 #include "Action/CWeapon.h"
 #include "Global.h"
-
+/////////////////////////////////////////////
 #include "Characters/CPlayer.h"
 #include "Components/CStateComponent.h"
 #include "Components/CStatusComponent.h"
@@ -10,7 +10,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ShapeComponent.h"
 #include "Components/SceneComponent.h"
-
+/////////////////////////////////////////////
 #include "GameFramework/Character.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Camera/CameraComponent.h"
@@ -132,9 +132,13 @@ void ACWeapon::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 
 void ACWeapon::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if(OverlappedActors.Contains(OtherActor))
+	// #1. 일반 공격모드에서 하면 오류 ( 카메라 쉐이크때문인지 몰라도 2번때려짐 )
+	if (State->IsSkillMode())
 	{
-		OverlappedActors.Remove(OtherActor);
+		if (OverlappedActors.Contains(OtherActor))
+		{
+			OverlappedActors.Remove(OtherActor);
+		}
 	}
 }
 

@@ -1,7 +1,7 @@
 #include "Characters/CTrader.h"
 #include "Global.h"
 ////////////////////
-#include "Components/CInventoryComponent.h"
+#include "Components/UIComponents/CInventoryComponent.h"
 #include "Components/CPatrolRouteComponent.h"
 
 ////////////////////
@@ -51,6 +51,7 @@ void ACTrader::BeginPlay()
 	NameWidget->InitWidget();
 	Cast<UCUserWidget_Name>(NameWidget->GetUserWidgetObject())->SetNameText(Name);
 	Cast<UCUserWidget_Name>(NameWidget->GetUserWidgetObject())->SetTextColor(NameColor);
+	Cast<UCUserWidget_Name>(NameWidget->GetUserWidgetObject())->SetNameVisibility(false);
 }
 
 void ACTrader::Tick(float DeltaTime)
@@ -89,3 +90,11 @@ void ACTrader::UpdateTraderInvenDatas(TArray<FItemDataTableBase> InInvenFItems, 
 {
 	Inventory->UpdateTraderInvenDatas(InInvenFItems, InMoney);
 }
+
+/** Trader의 이름을 마을에 들어왔을때 Player를 통하여 On/Off 하기 */
+void ACTrader::SetNameVisibility(const bool& bVisible)
+{
+	Cast<UCUserWidget_Name>(NameWidget->GetUserWidgetObject())->SetNameVisibility(bVisible);
+}
+
+

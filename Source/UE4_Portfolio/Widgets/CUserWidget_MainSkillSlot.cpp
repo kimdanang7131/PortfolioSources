@@ -8,7 +8,6 @@
 void UCUserWidget_MainSkillSlot::NativeConstruct()
 {
     Super::NativeConstruct();
-
 }
 
 void UCUserWidget_MainSkillSlot::SwapData(UCUserWidget_MainSkillSlot* SwapSlot)

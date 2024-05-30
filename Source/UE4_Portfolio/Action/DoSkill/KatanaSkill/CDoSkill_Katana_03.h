@@ -10,7 +10,7 @@ class UE4_PORTFOLIO_API ACDoSkill_Katana_03 : public ACDoSkill_Katana
 	GENERATED_BODY()
 	
 public:
-	ACDoSkill_Katana_03() { PrimaryActorTick.bCanEverTick = true; index = 2; }
+	ACDoSkill_Katana_03() { PrimaryActorTick.bCanEverTick = true; index = 2; coolTime = 23.f; }
 
 protected:
 	virtual void BeginPlay() override;

@@ -1,45 +1,39 @@
 #include "Components/CStatusComponent.h"
 #include "Global.h"
-
-#include "UObject/ConstructorHelpers.h"
-#include "Engine/World.h"
-#include "GameFramework/Character.h"
+///////////////////////////
 #include "Components/CStateComponent.h"
+///////////////////////////
+#include "GameFramework/Character.h"
 #include "Widgets/CUserWidget_MainUI.h"
-#include "CPlayerController.h"
 #include "Widgets/CUserWidget_Health.h"
-
-
-#include "Characters/CEnemy.h"
 #include "Characters/CPlayer.h"
+#include "Characters/CEnemy.h"
+///////////////////////////
+#include "CPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
-
-
 
 UCStatusComponent::UCStatusComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-
 void UCStatusComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// #1. 기본 셋팅
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
-
 	if (OwnerCharacter != nullptr)
 	{
 		State = Cast<UCStateComponent>(OwnerCharacter->GetComponentByClass(UCStateComponent::StaticClass()));
 		LockController = OwnerCharacter->GetController();
 	}
-			
 
-	// 포션 디버깅용
 	health  = MaxHealth;
 	stamina = MaxStamina;
 
+	// #2. Health관련 타이머 설정
 	GetWorld()->GetTimerManager().SetTimer(IncreaseHealthTimer, this, &UCStatusComponent::IncreaseHealth, 0.01f, true);
 	GetWorld()->GetTimerManager().PauseTimer(IncreaseHealthTimer);
 
@@ -52,6 +46,7 @@ void UCStatusComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+/** HealthWidget을 따로 변수로 만들어 실시간으로 접근하여 UI 변경 */
 void UCStatusComponent::SetHealthWidget(class UCUserWidget_Health* InHealthWidget)
 {
 	if (InHealthWidget == nullptr)
@@ -61,46 +56,48 @@ void UCStatusComponent::SetHealthWidget(class UCUserWidget_Health* InHealthWidge
 	HealthWidget->Update(health, MaxHealth);
 }
 
+/** Hitted 했을 때 잠시 0으로 바꾸기 위해 */
+void UCStatusComponent::SetMovementSpeed(const float& InSpeed)
+{
+	OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed = InSpeed;
+}
+
+
+/** 타이머를 통한 체력 증가 */
 void UCStatusComponent::AddHealth(const float& InAmount)
 {
 	// #1. 현재 진행되고 있는 타이머를 정지
 	GetWorld()->GetTimerManager().PauseTimer(IncreaseHealthTimer);
-	
-	// #2. 현재 체력 잠시 저장 -> Timer로 체력 자연스럽게 보간하기 위해
-	float tempHealth = health;
-	float addHealth  = health + InAmount;
 
-	// #3. MaxHealth를 넘어가면 고정되도록
-	addHealth = FMath::Clamp(addHealth, 0.f, MaxHealth);
+	healthAmount += InAmount;
+	healthAmount = FMath::Clamp(healthAmount, 0.f, MaxHealth);
 
-	// #4. Timer 진행값 + 새로 들어운 값
-	healthAmount += (addHealth - tempHealth);
-
-	// #5. 최대체력이 아니라면 Timer 진행
+	// #2. 최대체력이 아니라면 Timer 진행
 	if (healthAmount > 0.f)
 		GetWorld()->GetTimerManager().UnPauseTimer(IncreaseHealthTimer);
 }
 
+/** 타이머를 통한 체력 감소 */
 void UCStatusComponent::SubHealth(const float& InAmount)
 {
 	// #1. 현재 진행되고 있는 타이머를 정지
 	GetWorld()->GetTimerManager().PauseTimer(DecreaseHealthTimer);
 
-	// #2. 현재 체력 잠시 저장 -> Timer로 체력 자연스럽게 보간하기 위해
-	float tempHealth = health;
-	float subHealth  = health - InAmount;
+	healthAmount += InAmount;
+	healthAmount = FMath::Clamp(healthAmount, 0.f, MaxHealth);
 
-	// #3. 0.f보다 낮아지면 0으로 고정
-	subHealth = FMath::Clamp(subHealth, 0.f, MaxHealth);
+	// #2. 현재 빠지고 있는 체력 ( Timer를 통한 UI update ) 과  앞으로 빠질 체력을 종합해서
+	//     이미 죽을 상태이면 DeadMode로 진행 , Sub 타이머는 그대로 진행
+	if (health - healthAmount <= 0.f)
+		State->SetDeadMode();
 
-	// #4. Timer 진행값 + 새로 들어운 값
-	healthAmount += (tempHealth - subHealth);
-
-	// #5. 최대체력이 아니라면 Timer 진행
+	// #2. 최대체력이 아니라면 Timer 진행
 	if (healthAmount > 0.f)
 		GetWorld()->GetTimerManager().UnPauseTimer(DecreaseHealthTimer);
 }
 
+
+/** 타이머 체력 증가 로직 */
 void UCStatusComponent::IncreaseHealth()
 {
 	// #1. 포션을 먹는 도중 맞으면 healthAmount 멈춘 후 IncreseTimer 정지
@@ -128,6 +125,7 @@ void UCStatusComponent::IncreaseHealth()
 		GetWorld()->GetTimerManager().PauseTimer(IncreaseHealthTimer);
 }
 
+/** 타이머 체력 감소 로직 */
 void UCStatusComponent::DecreaseHealth()
 {
 	health       -= DECREASE_AMOUNT;
@@ -156,10 +154,10 @@ void UCStatusComponent::AddStamina(const float& InAmount)
 		return;
 
 	stamina += InAmount;
-
 	stamina = FMath::Clamp(stamina, 0.0f, MaxStamina);
 }
 
+/** 현재 Player만 공격시 Stamina 달도록 설정 */
 void UCStatusComponent::SubStamina(const float& InAmount)
 {
 	if (OwnerCharacter->IsA<ACPlayer>())
@@ -212,7 +210,3 @@ void UCStatusComponent::LockMouseMove(const bool& bIgnoreLook)
 }
 
 
-void UCStatusComponent::SetMovementSpeed(const float& InSpeed)
-{
-	OwnerCharacter->GetCharacterMovement()->MaxWalkSpeed = InSpeed;
-}

@@ -4,7 +4,6 @@
 
 #include "Animation/AnimInstance.h"
 #include "Components/CWeaponStateComponent.h"
-
 #include "CAnimInstance.generated.h"
 
 UCLASS()
@@ -31,7 +30,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		float Direction;
-
 
 	/** 이 애니메이션의 주체 */
 private:

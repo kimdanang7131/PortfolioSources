@@ -1,8 +1,7 @@
 #include "Notifies/Action/CAnimNotifyState_OnAttackTimer.h"
-
 #include "Global.h"
-
-#include "Components/CSkillComponent.h"
+/////////////////////////////////
+#include "Components/UIComponents/CSkillComponent.h"
 
 
 FString UCAnimNotifyState_OnAttackTimer::GetNotifyName_Implementation() const

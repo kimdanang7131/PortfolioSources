@@ -1,15 +1,12 @@
 #include "Characters/CCombatantCharacter.h"
 #include "Global.h"
-
 //////////////////
-
+#include "Components/UIComponents/CSkillComponent.h"
 #include "Components/CWeaponStateComponent.h"
 #include "Components/CStatusComponent.h"
 #include "Components/CStateComponent.h"
-#include "Components/CSkillComponent.h"
-
 //////////////////
-
+#include "Components/CapsuleComponent.h"
 #include "Action/CMontageDataAsset.h"
 #include "Action/CWeapon.h"
 
@@ -38,16 +35,15 @@ float ACCombatantCharacter::TakeDamage(float Damage, FDamageEvent const& DamageE
 	DamageInstigator = EventInstigator;
 	DamageValue = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	
-	// 공격자의 LaunchAmount를 가져와서 그 양만큼 날아가게 세팅해줘야함 ( 맞은 놈 기준 실행되어서 )
-	ACCombatantCharacter* CombatCharacter = Cast<ACCombatantCharacter>(EventInstigator->GetPawn());
-	if (CombatCharacter)
-		SetLaunchAmount(CombatCharacter->GetLaunchAmount());
+	// #1. 공격자의 LaunchAmount를 가져와서 그 양만큼 날아가게 세팅해줘야함 ( 맞은 놈 기준 실행되어서 )
+	ACCombatantCharacter* CombatantCharacter = Cast<ACCombatantCharacter>(EventInstigator->GetPawn());
+	if (CombatantCharacter)
+		SetLaunchAmount(CombatantCharacter->GetLaunchAmount());
 
+	// #2. DataAsset에 설정된 Hitted가 실행되도록 하기
 	State->SetHittedMode();
-
 	return Status->GetHealth();
 }
-
 
 void ACCombatantCharacter::ToggleWeaponA()
 {
@@ -59,51 +55,72 @@ void ACCombatantCharacter::ToggleWeaponB()
 	WeaponState->ToggleWeaponB();
 }
 
-
-/** 피격 당했을 때*/
+/** 피격 당했을 때 */
 void ACCombatantCharacter::Hitted()
 {
 	Super::Hitted();
 
-	// #1. StatusComponent에 데미지 값 전달하고 0보다 작으면 DeadMode
+	FVector start = GetActorLocation();
+	FVector target = DamageInstigator->GetPawn()->GetActorLocation();
+
+	hitAngle = 0.f;
+	bool bIsLeft = false;
+	int32 animIndex = GetHitDirection(start, target, hitAngle, bIsLeft);
+
+	// #1. StatusComponent에 데미지 값 전달하고 0보다 작으면 DeadMode 바꾸고 return
 	Status->SubHealth(DamageValue);
-	if (Status->GetHealth() - DamageValue <= 0.0f)
+	DamageValue = 0.0f;
+
+	
+	if (State->IsDeadMode())
 	{
-		DamageValue = 0.0f;
-		State->SetDeadMode();
+		// 죽었을 때의 각도에 따라 바라보는 방향 설정
+		if (hitAngle <= 90.f)
+			SetActorRotation(UKismetMathLibrary::FindLookAtRotation(start, target));
+		else
+			SetActorRotation(UKismetMathLibrary::FindLookAtRotation(target, start));
+
 		return;
 	}
 
-	DamageValue = 0.0f;
-
-	// #2. 현재 DataAsset에 등록된 애니메이션 가져오기
+	//#2. 현재 DataAsset에 등록된 애니메이션 가져오기
 	UCMontageDataAsset** MontageData = StateMontageMap.Find(State->GetStateNow());
 	FALSE_RETURN(*MontageData);
 
-	// #3. SetStop을 통해 Key Input을 Ignore 시킴
+	//#3. SetStop을 통해 Key Input을 Ignore 시킴
 	Status->SetStop();
-	PlayAnimMontage((*MontageData)->GetMontageData(0).AnimMontage, (*MontageData)->GetMontageData(0).PlayRatio, (*MontageData)->GetMontageData(0).StartSection);
-
-	// #4. 맞았을 때 때린놈을 쳐다보게 설정
-	FVector start = GetActorLocation();
-	FVector target = DamageInstigator->GetPawn()->GetActorLocation();
-	SetActorRotation(UKismetMathLibrary::FindLookAtRotation(start, target));
+	PlayAnimMontage((*MontageData)->GetMontageData(animIndex).AnimMontage, (*MontageData)->GetMontageData(animIndex).PlayRatio, (*MontageData)->GetMontageData(animIndex).StartSection);
+	//SetActorRotation(UKismetMathLibrary::FindLookAtRotation(start, target));
 	DamageInstigator = NULL;
-
-	// #5. 때린놈으로부터 맞은 놈으로 Launch 시킴
+	
+	// #4. 때린놈으로부터 맞은 놈으로 Launch 시킴
 	FVector direction = start - target;
 	direction.Normalize();
 	direction.Z = 0.f;
-
 	LaunchCharacter(direction * launchAmount, true, false);
 
-	// #6. 예외상황) 때리려고하다가 맞았을 때 Action Setting 초기화로
+	// #5. 예외상황) 때리려고하다가 맞았을 때 Action Setting 초기화로
 	if (WeaponState)
 	{
 		if (WeaponState->GetCurrentWeapon())
 			WeaponState->GetCurrentWeapon()->ResetAction();
 	}
 }
+
+void ACCombatantCharacter::Dead()
+{
+	// #1. 앞에서 맞았는지 뒤에서 맞았는지
+	int32 animIndex = hitAngle <= 90 ? 0 : 1;
+
+	// #2. 더이상 공격받지 않게 -> 사실 SetCanDamaged가 맞긴함
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// #3. State DataAsset에 등록된 애니메이션 실행
+	UCMontageDataAsset** MontageData = StateMontageMap.Find(State->GetStateNow());
+	FALSE_RETURN(*MontageData);
+	PlayAnimMontage((*MontageData)->GetMontageData(animIndex).AnimMontage, (*MontageData)->GetMontageData(animIndex).PlayRatio, (*MontageData)->GetMontageData(animIndex).StartSection);
+}
+
 
 /** State DataAsset - 회피 모드 */
 void ACCombatantCharacter::Dodging()
@@ -126,5 +143,50 @@ void ACCombatantCharacter::Dodging()
 	SetActorRotation(DodgeDirection);
 
 	PlayAnimMontage((*MontageData)->GetMontageData(0).AnimMontage , (*MontageData)->GetMontageData(0).PlayRatio, (*MontageData)->GetMontageData(0).StartSection);
+}
+
+
+/** F B L R -> 0 1 2 3 -> 0 2 1 3 애니메이션 반대로 */
+int32 ACCombatantCharacter::GetHitDirection(const FVector& start, const FVector& end , float& outAngle, bool& outbIsLeft)
+{
+	// #1. 타겟으로 향하는 벡터 구하기
+	FVector toTarget = end - start;
+	FVector forward = CSub::GetCustomForwardVector(this);
+	toTarget.Z = 0.f;
+	toTarget.Normalize();
+
+	// #2. 라디안을 각도로 변환
+	float radian = toTarget | forward;
+	float angle = acos(radian);
+	outAngle = angle * (180 / PI);
+
+	// #3. 왼쪽인지 오른쪽인지 구분
+	FVector crossProduct = toTarget ^ forward;
+	outbIsLeft = crossProduct.Z > 0 ? true : false;
+
+	// Front
+	if (outAngle <= 45.f)
+	{
+		return 0;
+	}
+	else if (outAngle <= 135.f)
+	{
+		// 애니메이션 반대로
+		// Left 
+		if (outbIsLeft == true)
+		{
+			return 2;
+		}
+		// Right
+		else
+		{
+			return 3;
+		}
+	}
+	// Back
+	else
+	{
+		return 1;
+	}
 }
 

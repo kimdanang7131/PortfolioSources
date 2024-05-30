@@ -17,10 +17,8 @@ protected:
 
 
 private:
-	// 도착했는지 여부 파악 크기
+	/** 도착했는지 여부 파악 크기 */
 	UPROPERTY(EditAnywhere)
 		float AcceptanceRadius = 50.f;
 
-private:
-	class UCPatrolRouteComponent* PatrolRouteComp;
 };

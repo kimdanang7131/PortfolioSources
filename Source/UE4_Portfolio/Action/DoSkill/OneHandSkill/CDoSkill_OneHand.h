@@ -10,7 +10,7 @@ class UE4_PORTFOLIO_API ACDoSkill_OneHand : public ACDoSkill
 	GENERATED_BODY()
 	
 public:
-	ACDoSkill_OneHand() { PrimaryActorTick.bCanEverTick = true; index = 0; }
+	ACDoSkill_OneHand() { PrimaryActorTick.bCanEverTick = true; index = 0;  }
 
 protected:
 	virtual void BeginPlay() { Super::BeginPlay(); }

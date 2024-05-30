@@ -8,10 +8,8 @@ UCLASS()
 class UE4_PORTFOLIO_API ACDoSkill_TwoHand : public ACDoSkill
 {
 	GENERATED_BODY()
-	
 public:
 	ACDoSkill_TwoHand() { PrimaryActorTick.bCanEverTick = true; bCanRotate = true; rInterpSpeed = 3.f; }
-
 protected:
 	virtual void BeginPlay() { Super::BeginPlay(); }
 	virtual void Tick(float DeltaTime) { Super::Tick(DeltaTime); }
@@ -22,6 +20,7 @@ public:
 	virtual void End_Hold() { Super::End_Hold(); }
 	virtual void DoSubSkill() { Super::DoSubSkill(); }
 
+	/** 0.x초마다 딜 넣기 위해서 */
 	virtual void OnAttackByTimer() { Super::OnAttackByTimer(); }
 public:
 	virtual void Activate() { Super::Activate(); }

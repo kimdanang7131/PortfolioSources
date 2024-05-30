@@ -1,28 +1,22 @@
 #include "CPlayerController.h"
-
 #include "Global.h"
-#include "Components/WidgetComponent.h"
+////////////////////////
 #include "Widgets/CUserWidget_MainUI.h"
-
 #include "Characters/CPlayer.h" 
+////////////////////////
+#include "Components/WidgetComponent.h"
 
 class UCUserWidget_MainUI* ACPlayerController::MainUI = nullptr;
 
 ACPlayerController::ACPlayerController()
 {
-    //btick
-	//TSubclassOf<UCUserWidget_Name> nameClass;
-	//CHelpers::GetClass<UCUserWidget_Name>(&nameClass, "WidgetBlueprint'/Game/Blueprints/Widgets/WBP_Name.WBP_Name_C'");
-	//NameWidget->SetWidgetClass(nameClass);
-	//NameWidget->SetRelativeLocation(FVector(0, 0, 240));
-	//NameWidget->SetDrawSize(FVector2D(240, 30));
-	//NameWidget->SetWidgetSpace(EWidgetSpace::Screen);
+
 }
 
+/** PlayerController 생성시 MainUI Viewport에 생성 */
 void ACPlayerController::BeginPlay()
 {
     Super::BeginPlay();
-    // MainUI 생성 및 화면에 추가
     if (MainUIWidgetClass)
     {
         MainUI = CreateWidget<UCUserWidget_MainUI>(GetWorld(), MainUIWidgetClass);
@@ -41,6 +35,16 @@ UCUserWidget_MainUI* ACPlayerController::GetPlayerMainUI()
 {
     return MainUI;
 }
+
+
+
+
+
+
+
+
+
+
 
 //ACPlayer* ACPlayerController::GetPlayer()
 //{

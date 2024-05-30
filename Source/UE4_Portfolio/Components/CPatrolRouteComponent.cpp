@@ -1,15 +1,14 @@
 #include "Components/CPatrolRouteComponent.h"
 #include "Global.h"
-
-#include "Components/SplineComponent.h"
+//////////////////////
 #include "BehaviorTree/CPatrolRoute.h"
+//////////////////////
+#include "Components/SplineComponent.h"
 
 UCPatrolRouteComponent::UCPatrolRouteComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
-
+	
 }
-
 
 void UCPatrolRouteComponent::BeginPlay()
 {
@@ -29,26 +28,20 @@ void UCPatrolRouteComponent::BeginPlay()
 		
 }
 
-
-void UCPatrolRouteComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-}
-
-// #1. 레벨에 따로 등록한 Spline을 가져와서 사용
+/** 레벨에 따로 등록한 BP PatrolRoute의 Spline을 가져와서 사용 */
 bool UCPatrolRouteComponent::GetDestination(FVector& OutLocation)
 {
-	// #2. 레벨에서 등록안할수도 있기 때문에 체크 필수
-	if(Spline == nullptr)
+	// #1. 레벨에서 등록안할수도 있기 때문에 체크 필수
+	if (Spline == nullptr)
 		return false;
 
-	// #3. PatrolRoute중 현재의 위치 가져오기
+	// #2. BP PatrolRoute의 Spline의 현재의 위치 가져오기
 	OutLocation = Spline->GetLocationAtSplinePoint(routeIndex, ESplineCoordinateSpace::World);
 	
 	return true;
 }
 
+/** Closed Loop인지 확인하여 각각에 맞춰 다음 Index로 이동 */
 void UCPatrolRouteComponent::SetIndexToNext()
 {
 	if (Spline == nullptr)

@@ -58,7 +58,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 		uint8 TeamId = 0;
 
-
+public:
+	/** Door에 닿으면 NPC들의 이름이 보이도록 설정 */
+	void ToggleVillage();
 
 private:
 	/** 앞뒤좌우 움직임 */
@@ -130,4 +132,7 @@ protected:
 
 private:
 	class ACItem* PotionItem;
+	bool bNPCNameVisible = false;
+
+	TArray<AActor*> TradersArr;
 };

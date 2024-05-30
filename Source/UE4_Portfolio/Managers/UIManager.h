@@ -2,15 +2,14 @@
 
 
 #include "CoreMinimal.h"
-#include "Components/CUIManagementComponent.h"
+#include "Components/UIComponents/CUIManagementComponent.h"
 #include "CPlayerController.h"
 #include "Global.h"
 
 class UE4_PORTFOLIO_API UIManager
 {
 public:
-
-
+	/** PlayerController 등록 */
 	static void SetPlayerController(class ACPlayerController* InPlayerController)
 	{
 		ACPlayerController* controller = Cast<ACPlayerController>(InPlayerController);
@@ -21,13 +20,13 @@ public:
 		}
 	}
 
-	// #1. 시작할때 UIComponent의 상위부모의 BeginPlay에서 이 클래스의 AddUIComponent를 실행하여 자동등록
+	/** 시작할때 UIComponent의 상위부모의 BeginPlay에서 이 클래스의 AddUIComponent를 실행하여 자동등록 */
 	static void AddUIComponent(class UCUIManagementComponent* UIComponent)
 	{
 		UIComponents.Add(UIComponent);
-		CLog::Print(UIComponents.Num());
 	}
 
+	/** UIManager를 통해 모든 켜져있는 UI를 끄고 GameMode로 전환 */
 	static void SetGameModeOnly()
 	{
 		if (UIComponents.Num() > 0)
@@ -45,13 +44,14 @@ public:
 		}
 	}
 
+	/** Input모드 변경 */
 	static void SetUIMode()
 	{
 		PlayerController->SetInputMode(FInputModeGameAndUI());
 		PlayerController->SetShowMouseCursor(true);
 	}
 
-	// #1. UI가 한개라도 켜져있는지 확인
+	/** UI가 한개라도 켜져있는지 확인 */
 	static bool CheckUIMode()
 	{
 		if (UIComponents.Num() > 0)

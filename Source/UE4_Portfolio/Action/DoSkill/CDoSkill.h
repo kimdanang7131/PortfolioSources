@@ -26,6 +26,8 @@ public:
 	/** Weapon으로부터 Skill이 만들어질때 Weapon에서 사용할 함수 */
 	FORCEINLINE void SetData(FSkillData InData) { Data = InData; }
 	FORCEINLINE void SetOwnerWeapon(class ACWeapon* weapon) { OwnerWeapon = weapon; }
+	FORCEINLINE void SetMainSkillWidget(class UCUserWidget_MainSkillSlot* InMainSkillSlot) { MainSkillSlot = InMainSkillSlot; }
+	
 
 #pragma region Components + OwnerCharacter
 protected:
@@ -81,6 +83,9 @@ protected:
 
 	void test();
 
+public:
+	bool CheckCanActivateSkill();
+
 protected:
 	/**  OnAttackByTimer 핸들 */
 	FTimerHandle Handle;
@@ -97,4 +102,9 @@ protected:
 
 	FSkillData Data;
 	int32 index = 0;
+
+	float coolTime  = 0.f;
+	float spendTime = 0.f;
+	bool bOnCoolTime = false;
+	class UCUserWidget_MainSkillSlot* MainSkillSlot;
 };

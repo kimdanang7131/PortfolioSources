@@ -24,6 +24,7 @@ ACDoSkill_Katana_02::ACDoSkill_Katana_02()
 	Niagara->SetupAttachment(Scene);
 
 	index = 1;
+	coolTime = 15.f;
 }
 
 void ACDoSkill_Katana_02::BeginPlay()

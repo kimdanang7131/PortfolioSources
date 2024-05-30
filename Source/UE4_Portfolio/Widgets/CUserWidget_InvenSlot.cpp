@@ -9,7 +9,7 @@
 
 #include "Widgets/CUserWidget_InvenWindow.h"
 #include "Actors/CItem.h"
-#include "Components/CInventoryComponent.h"
+#include "Components/UIComponents/CInventoryComponent.h"
 #include "CPlayerController.h"
 
 
@@ -48,7 +48,6 @@ void UCUserWidget_InvenSlot::SetSlotData(const FItemDataTableBase& InFItemData, 
 
 void UCUserWidget_InvenSlot::SwapData(const FItemDataTableBase& InFItemData , UCUserWidget_Description* InItemDescWidget)
 {
-
     SetFItemData(InFItemData);
     SetItemTexture(InFItemData.ItemTexture);
     SetItemQuantity(InFItemData.Quantity);

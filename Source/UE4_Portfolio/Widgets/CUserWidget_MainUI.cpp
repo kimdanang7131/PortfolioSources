@@ -1,11 +1,12 @@
 #include "Widgets/CUserWidget_MainUI.h"
 #include "Global.h"
-
+////////////////////////////////
+#include "Components/UIComponents/CInventoryComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Widgets/CUserWidget_InvenWindow.h"
 #include "Widgets/CUserWidget_SkillWindow.h"
-
 #include "Widgets/CUserWidget_MainSkillSlot.h"
+////////////////////////////////
 #include "Characters/CPlayer.h"
 
 
@@ -14,7 +15,6 @@ void UCUserWidget_MainUI::NativeConstruct()
     Super::NativeConstruct();
    
     Init();
-
 }
 
 void UCUserWidget_MainUI::Init()
@@ -69,6 +69,24 @@ UCUserWidget_MainSkillSlot* UCUserWidget_MainUI::FindIndexSkillMainSlot(const in
     }
 }
 
+UCUserWidget_InvenSlot* UCUserWidget_MainUI::FindIndexInvenMainSlot(const int32& InUseInvenIndex)
+{
+    // UseInvenIndex
+    switch (InUseInvenIndex)
+    {
+    case 0:
+        return InvenMainSlot_0;
+    case 1:
+        return InvenMainSlot_1;
+    case 2:
+        return InvenMainSlot_2;
+    case 3:
+        return InvenMainSlot_3;
+    default:
+        return nullptr;
+    }
+}
+
 int32 UCUserWidget_MainUI::CheckSameSkillMainSlot(UTexture2D* InTexture)
 {
     // #1. 같은 Texture를 찾으면 그 Index를 반환
@@ -94,7 +112,6 @@ void UCUserWidget_MainUI::SetMainSkillActivated(UTexture2D* InTexture)
         }
     }
 }
-
 
 void UCUserWidget_MainUI::SkillSlotSwap(const int32& InSwapIndex, const int32& InSwappedIndex)
 {

@@ -15,8 +15,12 @@ public:
 			return true;
 		if (OwnerCharacter->GetClass() == OtherActor->GetClass())
 			return true;
-		if (OwnerCharacter->GetClass() == OtherActor->GetOwner()->GetClass())
-			return true;
+		if (OtherActor->GetOwner())
+		{
+			if (OwnerCharacter->GetClass() == OtherActor->GetOwner()->GetClass())
+				return true;
+		}
+
 
 		return false;
 	}
@@ -39,7 +43,6 @@ public:
 		{
 			// 인간형 아닐때 따로 처리해야함
 		}
-
 		return false;
 	}
 
@@ -61,7 +64,6 @@ public:
 		FRotator rotator = Actor->GetActorRotation();
 		return FQuat(rotator).GetUpVector();
 	}
-
 
 
 

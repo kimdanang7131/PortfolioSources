@@ -2,8 +2,8 @@
 #include "Actors/CItem.h"
 #include "Global.h"
 
-//#include "Components/CStateComponent.h"
-//#include "Components/CStatusComponent.h"
+#include "Components/CStateComponent.h"
+#include "Components/CStatusComponent.h"
 
 ACItem::ACItem()
 {

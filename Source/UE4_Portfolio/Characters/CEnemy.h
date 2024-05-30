@@ -27,7 +27,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UWidgetComponent* NameWidget;
 
-	UPROPERTY(VisibleDefaultsOnly)
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 		class UWidgetComponent* HealthWidget;
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)

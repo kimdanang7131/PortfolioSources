@@ -15,4 +15,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void SetTextColor(const FLinearColor& InColor);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void SetNameVisibility(bool bVisible);
 };

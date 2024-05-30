@@ -1,11 +1,11 @@
 #include "Components/CWeaponStateComponent.h"
 #include "Global.h"
-
+///////////////////////
+#include "Components/CStateComponent.h"
+///////////////////////
 #include "GameFramework/Character.h"
-
 #include "Action/CActionDataAsset.h"
 #include "Action/CWeapon.h"
-#include "CStateComponent.h"
 #include "Characters/CCombatantCharacter.h"
 
 UCWeaponStateComponent::UCWeaponStateComponent()
@@ -106,7 +106,6 @@ void UCWeaponStateComponent::ToggleWeaponB()
 {
 	FALSE_RETURN(State->IsIdleMode());
 
-	CLog::Print(DataWeaponB->GetWeapon()->GetName());
 	// #1. 장착 중  -> 같은 무기 -> 장착 해제
 	//             -> 다른 무기 -> 장착 해제 -> 다른 무기 착용
 	//

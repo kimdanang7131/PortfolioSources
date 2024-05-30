@@ -5,5 +5,5 @@
 UENUM(BlueprintType)
 enum class EBehaviorType : uint8
 {
-	Idle_BT, Dodge_BT, Action_BT, Skill_BT, Hitted_BT, Approach_BT, Patrol_BT , Max
+	Idle_BT, Dodge_BT, Action_BT, Skill_BT, Hitted_BT, Approach_BT, Patrol_BT , Dead_BT, Max
 };

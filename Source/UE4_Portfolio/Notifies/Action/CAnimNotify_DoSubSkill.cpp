@@ -3,7 +3,7 @@
 #include "Global.h"
 #include "Characters/CCharacter.h"
 
-#include "Components/CSkillComponent.h"
+#include "Components/UIComponents/CSkillComponent.h"
 
 
 FString UCAnimNotify_DoSubSkill::GetNotifyName_Implementation() const

@@ -10,7 +10,7 @@ class UE4_PORTFOLIO_API ACDoSkill_DualBlade_02 : public ACDoSkill_DualBlade
 	GENERATED_BODY()
 	
 public:
-	ACDoSkill_DualBlade_02() { PrimaryActorTick.bCanEverTick = true; index = 1; }
+	ACDoSkill_DualBlade_02() { PrimaryActorTick.bCanEverTick = true; index = 1; coolTime = 14.f; }
 protected:
 	virtual void BeginPlay() override;
 public:

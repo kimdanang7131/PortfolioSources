@@ -1,29 +1,27 @@
-#include "Components/CInventoryComponent.h"
+#include "Components/UIComponents/CInventoryComponent.h"
 #include "Global.h"
-
-#include "CPlayerController.h"
-#include "Components/WidgetComponent.h"
-#include "Widgets/CUserWidget_MainUI.h"
-
-#include "GameFramework/Character.h"
-#include "Characters/CPlayer.h"
-
-#include "CStateComponent.h"
-
+///////////////////////////////
+#include "Components/CStateComponent.h"
+///////////////////////////////
 #include "Managers/UIManager.h"
-#include "Widgets/CUserWidget_InvenWindow.h"
-#include "UObject/ConstructorHelpers.h"
+#include "CPlayerController.h"
+#include "Characters/CPlayer.h"
 #include "Actors/CItem.h"
+#include "Widgets/CUserWidget_MainUI.h"
+#include "Widgets/CUserWidget_InvenWindow.h"
+#include "Widgets/CUserWidget_InvenSlot.h"
+///////////////////////////////
+#include "GameFramework/Character.h"
+#include "Components/WidgetComponent.h"
 
 UCInventoryComponent::UCInventoryComponent()
 {
-
 }
 
+/** 시작시 ItemDataTable의 모든 행들에 대한 Data를 UI에 등록 */
 void UCInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
     State = CHelpers::GetComponent<UCStateComponent>(OwnerCharacter);
 
     if (!!ItemDT)
@@ -33,11 +31,12 @@ void UCInventoryComponent::BeginPlay()
 
         for (int32 i = 0; i < arr.Num(); i++)
         {
+            // #1. bCanActivate이 True로 되어있는 것들만 Item SpawnActor
             if (arr[i]->bCanActivate == true)
             { 
+                // #2. Map에 ItemClass(Value)가 없다면 Spawn해서 등록
                 if (SpawnItems.Contains(arr[i]->ItemClass) == false)
                 {
-                    //CLog::Print(arr[i]->ItemName.ToString());
                     ACItem* Item = CHelpers::MySpawnActor<ACItem>(arr[i]->ItemClass, OwnerCharacter, FTransform::Identity);
 
                     if (!!Item)
@@ -107,26 +106,16 @@ int32 UCInventoryComponent::GetTraderMoney()
     return MainUI->GetTraderWindow()->GetInvenMoney();
 }
 
+/** money,InvenFItems를 플레이어가 받아서 Trader에게 넘겨줌 */
 void UCInventoryComponent::UpdateTraderInvenDatas(TArray<FItemDataTableBase> InInvenFItems, const int32& InMoney)
 {
     InvenFItems.Empty();
 
     money       = InMoney;
     InvenFItems = InInvenFItems;
-    
-    //for (int32 i = 0; i < InvenFItems.Num(); i++)
-    //{
-    //    if (SpawnItems.Contains(InvenFItems[i].ItemClass))
-    //    {
-    //        //SpawnActor[i]++;
-    //    }
-    //    else
-    //    {
-    //        SpawnItem.Add(InvenFItems[i].ItemClass, 0);
-    //    }
-    //}
 }
 
+/** Player는 바로 InvenUI 업데이트 */
 void UCInventoryComponent::UpdatePlayerInvenDatas()
 {
     InvenFItems.Empty();
@@ -167,27 +156,20 @@ void UCInventoryComponent::ClearUI()
     {
         bIsVisible = false;
         MainUI->SetPlayerInventoryVisibility(bIsVisible);
-        //UpdatePlayerInvenDatas();
-
-        //for (int32 i = 0; i < InvenFItems.Num(); i++)
-        //{
-        //    if(InvenFItems.Contains(i))
-        //    CLog::Print(InvenFItems[i].ItemName.ToString());
-        //}
     }
 }
 
 void UCInventoryComponent::InitFItemDataTable()
 {
     TArray<FName> ItemRowNames = ItemDT->GetRowNames();
-    // 데이터 테이블의 각 행 이름을 순회
+    // #1. 데이터 테이블의 각 행 이름을 순회
     for (const FName& RowName : ItemRowNames)
     {
-        // 행 이름을 사용하여 데이터 테이블에서 해당 행 가져오기
+        // #2. 행 이름을 사용하여 데이터 테이블에서 해당 행 가져오기
         FItemDataTableBase* ItemData = ItemDT->FindRow<FItemDataTableBase>(RowName, TEXT("FItemDataTableBaseByInvenComp"));
         if (!!ItemData)
         {
-            // 가져온 행이 유효한 경우, ItemDatas에 추가
+            // #3. 가져온 행이 유효한 경우, ItemDatas에 추가
             InvenFItems.Add(*ItemData);
         }
     }
@@ -198,23 +180,30 @@ void UCInventoryComponent::OpenTraderWindow(const TArray<FItemDataTableBase>& In
 {
     UIManager::SetGameModeOnly();
 
+    // #1. Trader여는 순간 인벤토리에 Item UI 추가
     for (const FItemDataTableBase& FItem : InTraderFItems)
         MainUI->GetTraderWindow()->AddFItemToInvenSlot(FItem, true);
 
     MainUI->GetTraderWindow()->SetMoney(InMoney);
+    
+
+    // #2. 나머지 설정
     MainUI->SetTraderInventoryVisibility(true);
     MainUI->SetCanTrade(true);
 
     OpenUI();
 }
 
-// Trader 영역을 벗어나면 모든 창을 닫고 Trader의 인벤토리를 UI로부터 받아옴
+/** Trader 영역을 벗어나면 모든 UI를 종료 , GameMode로 변경 , Trader Window를 Clear 
+    Player에서 델리게이트를 통해 UpdateTraderInvenDatas Trader에게 전달 */
 void UCInventoryComponent::CloseTraderWindow()
 {
     UIManager::SetGameModeOnly();
 
     MainUI->SetTraderInventoryVisibility(false);
+    // #1. 다른 Trader와 거래를 위해 Trader Window를 비움
     MainUI->GetTraderWindow()->ClearInventoryWindow();
+    // #2. MainUI도 설정해줘야 Trader교환 상태가 아니면 그냥 아이템 사용
     MainUI->SetCanTrade(false);
 }
 
@@ -224,12 +213,18 @@ void UCInventoryComponent::TestPrint()
     //MainUI->GetInvenWindow()->TestPrint();
 }
 
+/** 아이템 사용 */
 void UCInventoryComponent::UseSpawnedItem(TSubclassOf<class ACItem> InUseItem , FItemDataTableBase FItem)
 {
     if (SpawnItems.Contains(InUseItem))
     {
         SpawnItems[InUseItem]->AcivateItem(FItem);
     }
+}
+
+void UCInventoryComponent::UseInvenSlotItem(const int32& InSlotInvenIndex)
+{
+    ACPlayerController::GetPlayerMainUI()->FindIndexInvenMainSlot(InSlotInvenIndex)->UseSlotItem();
 }
 
 

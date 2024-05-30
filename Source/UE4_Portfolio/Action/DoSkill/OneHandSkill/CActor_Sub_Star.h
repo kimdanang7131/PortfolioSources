@@ -22,6 +22,7 @@ private:
 	UFUNCTION()
 		void ActorEndOverlap(AActor* OverlappedActor, AActor* OtherActor);
 
+#pragma region UPROPERTIES
 protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 		class USceneComponent* Scene;
@@ -38,6 +39,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		class UProjectileMovementComponent* Projectile;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+		class USoundCue* ExplosionSound;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		float Damage;
+#pragma endregion
 };

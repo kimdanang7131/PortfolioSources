@@ -8,17 +8,12 @@ UCLASS()
 class UE4_PORTFOLIO_API ACDoSkill_TwoHand_01 : public ACDoSkill_TwoHand
 {
 	GENERATED_BODY()
-	
 public:
-	ACDoSkill_TwoHand_01() { PrimaryActorTick.bCanEverTick = true;  index = 0;}
-
+	ACDoSkill_TwoHand_01() { PrimaryActorTick.bCanEverTick = true;  index = 0; coolTime = 12.f; }
 protected:
 	virtual void BeginPlay() override;
-
 public:
 	virtual void Tick(float DeltaTime) override;
-
-
 public:
 	virtual void DoSkill() {}
 	virtual void End_Hold() {}

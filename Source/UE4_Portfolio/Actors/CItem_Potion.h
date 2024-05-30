@@ -9,10 +9,15 @@ UCLASS()
 class UE4_PORTFOLIO_API ACItem_Potion : public ACItem
 {
 	GENERATED_BODY()
-	
+
+protected:
+	ACItem_Potion();
 public:
 	virtual void AcivateItem(FItemDataTableBase FItem) override;
 
-protected:
-	float amount = 1.f;
+	UPROPERTY(EditAnywhere, Category = "Montage")
+		class UAnimMontage* DrinkMontage;
+
+	UPROPERTY(EditAnywhere)
+		float amount = 1.f;
 };

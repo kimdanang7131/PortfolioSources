@@ -6,6 +6,7 @@
 //////////////////////
 #include "Action/DoSkill/KatanaSkill/CActor_Sub_Slash.h"
 #include "Action/CWeapon.h"
+#include "Widgets/CUserWidget_MainSkillSlot.h"
 //////////////////////
 #include "GameFramework/Character.h"
 
@@ -35,6 +36,23 @@ void ACDoSkill::Tick(float DeltaTime)
 		if (bCanRotate)
 			OwnerForwardRInterp(DeltaTime, rInterpSpeed);
 	}
+
+	if (bOnCoolTime)
+	{
+		spendTime -= DeltaTime;
+
+		if ( spendTime < 0.f )
+		{
+			if (MainSkillSlot)
+				MainSkillSlot->SetProgressTranscluent(false);
+			spendTime = 0.f;
+			bOnCoolTime = false;
+			MainSkillSlot = nullptr;
+		}
+
+		if(MainSkillSlot)
+			MainSkillSlot->SetCoolPercent(spendTime / coolTime);
+	}
 }
 
 void ACDoSkill::End_Hold()
@@ -45,7 +63,13 @@ void ACDoSkill::End_Hold()
 
 void ACDoSkill::Activate()
 {
+	bOnCoolTime = true;
 	bIsActivated = true;
+	spendTime = coolTime;
+
+	if (MainSkillSlot)
+		MainSkillSlot->SetProgressTranscluent(true);
+
 
 	// #1. OwnerWeapon에다 SkillIndex를 전달하여 SkillData의 데미지를
 	//     적용할 수 있도록 설정 ( 근접공격도 같이 하므로 )
@@ -196,5 +220,10 @@ void ACDoSkill::test()
 
 	//if (!!Data.Power)
 	//	CLog::Print(Data.Power, -1, 50.f);
+}
+
+bool ACDoSkill::CheckCanActivateSkill()
+{
+	return spendTime <= 0.f;
 }
 

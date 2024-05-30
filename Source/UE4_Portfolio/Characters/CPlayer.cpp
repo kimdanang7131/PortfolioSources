@@ -1,15 +1,13 @@
 #include "Characters/CPlayer.h"
 #include "Global.h"
-
- ///////////
+ //////////////////////
+#include "Components/UIComponents/CSkillComponent.h"
+#include "Components/UIComponents/CInventoryComponent.h"
 #include "Components/CWeaponStateComponent.h"
-#include "Components/CInventoryComponent.h"
-#include "Components/CSkillComponent.h"
 #include "Components/CTargetComponent.h"
 #include "Components/CStatusComponent.h"
 #include "Components/CStateComponent.h"
-
-////////////
+///////////////////////
 #include "Managers/UIManager.h"
 #include "CPlayerController.h"
 #include "Characters/CCombatantCharacter.h"
@@ -17,8 +15,7 @@
 #include "Widgets/CUserWidget_InvenWindow.h"
 #include "Widgets/CUserWidget_Stamina.h"
 #include "Widgets/CUserWidget_Health.h"
-
-///////////
+//////////////////////
 #include "Components/WidgetComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -54,7 +51,6 @@ void ACPlayer::BeginPlay()
 
 
 	// #1. 모든 Trader갖고와서 영역 안에 있으면 교환하기 위해서 델리게이트를 등록
-	TArray<AActor*> TradersArr;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACTrader::StaticClass(), TradersArr);
 
 	for (AActor* trader : TradersArr)
@@ -73,11 +69,10 @@ void ACPlayer::BeginPlay()
 
 	// #3. Update에서 사용하기 위해 Widget 저장하고 Status-> HealthWidget을 Timer로 컨트롤하기 위해 등록해줌
 	HealthWidget  = MyController->GetPlayerMainUI()->GetHealthBar();
-	StaminaWidget = MyController->GetPlayerMainUI()->GetStaminaBar();
 	Status->SetHealthWidget(HealthWidget);
+
+	StaminaWidget = MyController->GetPlayerMainUI()->GetStaminaBar();
 	MaxStamina = Status->GetMaxStamina();
-
-
 
 	// Test용 나중에 지울 것
 	PotionItem = CHelpers::MySpawnActor<ACItem>(PotionItemClass, this, GetActorTransform());
@@ -156,10 +151,25 @@ FGenericTeamId ACPlayer::GetGenericTeamId() const
 	return FGenericTeamId(TeamId);
 }
 
+/** Player가 마을에 들어왔을때 BoxTrigger를 통하여 Trader의 이름을 OnOff하여 보여주기 */
+void ACPlayer::ToggleVillage()
+{
+	bNPCNameVisible = !bNPCNameVisible;
+
+	for (AActor* trader : TradersArr)
+	{
+		ACTrader* castedTrader = Cast<ACTrader>(trader);
+		if (!!castedTrader)
+		{
+			castedTrader->SetNameVisibility(bNPCNameVisible);
+		}
+	}
+}
+
 /** 앞뒤 움직임 */
 void ACPlayer::OnMoveFB(float InAxis)
 {
-	FALSE_RETURN(Status->CanMove())
+	FALSE_RETURN(Status->CheckCanMove())
 
 	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
 	FVector direction = FQuat(rotator).GetForwardVector();
@@ -170,7 +180,7 @@ void ACPlayer::OnMoveFB(float InAxis)
 /** 좌우 움직임 */
 void ACPlayer::OnMoveLR(float InAxis)
 {
-	FALSE_RETURN(Status->CanMove())
+	FALSE_RETURN(Status->CheckCanMove())
 
 	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
 	FVector direction = FQuat(rotator).GetRightVector();
@@ -181,7 +191,7 @@ void ACPlayer::OnMoveLR(float InAxis)
 /** 마우스 좌우 움직임 */
 void ACPlayer::OnHorizontalLook(float InAxis)
 {
-	FALSE_RETURN(Status->CanControl())
+	FALSE_RETURN(Status->CheckCanControl())
 	float rate = Status->GetHorizontalLookRate();
 
 	AddControllerYawInput(rate * InAxis * GetWorld()->GetDeltaSeconds());
@@ -190,7 +200,7 @@ void ACPlayer::OnHorizontalLook(float InAxis)
 /** 마우스 위아래 움직임 */
 void ACPlayer::OnVerticalLook(float InAxis)
 {
-	FALSE_RETURN(Status->CanControl())
+	FALSE_RETURN(Status->CheckCanControl())
 	float rate = Status->GetVerticalLookRate();
 
 	AddControllerPitchInput(rate * InAxis * GetWorld()->GetDeltaSeconds());
@@ -199,7 +209,7 @@ void ACPlayer::OnVerticalLook(float InAxis)
 /** Shift 달리기 On Off */
 void ACPlayer::OnSprint()
 {
-	FALSE_RETURN(Status->CanControl());
+	FALSE_RETURN(Status->CheckCanControl());
 
 	bIsSprinting = true;
 	GetCharacterMovement()->MaxWalkSpeed = 800.f;
@@ -253,9 +263,6 @@ void ACPlayer::End_Hold()
 }
 
 
-
-
-
 /** K 눌렀을때 스킬창 UI 오픈 */
 void ACPlayer::ToggleSkillWindow()
 {
@@ -291,9 +298,6 @@ void ACPlayer::CloseTradeWindow(ACTrader* InTrader)
 	Inventory->CloseTraderWindow();
 }
 
-
-
-
 void ACPlayer::Test1()
 {
 	Inventory->AddFItemToUI();
@@ -303,8 +307,7 @@ void ACPlayer::Test1()
 void ACPlayer::Test2()
 {
 	//Inventory->AddFItemToUI2();
-
-	CLog::Print("Test2");
+	Status->SubHealth(30.f);
 
 	//PotionItem->AcivateItem(FItem);
 
@@ -316,24 +319,26 @@ void ACPlayer::Test2()
 	//}
 }
 
-
-
 void ACPlayer::UseItemA()
 {
-
+	if (Inventory)
+		Inventory->UseInvenSlotItem(0);
 }
 
 void ACPlayer::UseItemB()
 {
-
+	if (Inventory)
+		Inventory->UseInvenSlotItem(1);
 }
 
 void ACPlayer::UseItemC()
 {
-
+	if (Inventory)
+		Inventory->UseInvenSlotItem(2);
 }
 
 void ACPlayer::UseItemD()
 {
-
+	if (Inventory)
+		Inventory->UseInvenSlotItem(3);
 }

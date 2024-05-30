@@ -1,10 +1,12 @@
 #include "Notifies/CAnimNotify_Finish.h"
-
 #include "Global.h"
-#include "Characters/CCharacter.h"
+////////////////////////////////
 #include "Components/CStateComponent.h"
 #include "Components/CStatusComponent.h"
 #include "Components/CWeaponStateComponent.h"
+////////////////////////////////
+#include "Characters/CCharacter.h"
+////////////////////////////////
 
 FString UCAnimNotify_Finish::GetNotifyName_Implementation() const
 {
@@ -19,6 +21,7 @@ void UCAnimNotify_Finish::Notify(USkeletalMeshComponent* MeshComp, UAnimSequence
 
 	UCStateComponent*  State  = CHelpers::GetComponent<UCStateComponent>(MeshComp->GetOwner());
 	UCStatusComponent* Status = CHelpers::GetComponent<UCStatusComponent>(MeshComp->GetOwner());
+	
 
 	NULL_RETURN(State);
 

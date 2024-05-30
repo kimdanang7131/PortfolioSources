@@ -1,7 +1,7 @@
 #include "Notifies/Action/CAnimNotify_EndSkill.h"
 #include "Global.h"
 
-#include "Components/CSkillComponent.h"
+#include "Components/UIComponents/CSkillComponent.h"
 
 FString UCAnimNotify_EndSkill::GetNotifyName_Implementation() const
 {

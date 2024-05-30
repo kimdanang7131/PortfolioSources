@@ -50,8 +50,6 @@ public:
 	/** Notify */
 	FORCEINLINE void EnableCombo()  { bCanCombo = true; }
 	FORCEINLINE void DisableCombo() { bCanCombo = false; }
-	
-
 
 	/** 블루프린트에서 사용할 함수들 */
 public:
@@ -169,7 +167,6 @@ private:
 	TArray<class UShapeComponent*> ShapeComponents;
 	TArray<class UParticleSystemComponent*> ParticleSystemComponents;
 	//TSubclassOf<class UCMatineeCameraShake> camShake;
-
 };
 
 

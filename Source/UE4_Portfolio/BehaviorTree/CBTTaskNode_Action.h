@@ -11,10 +11,8 @@ class UE4_PORTFOLIO_API UCBTTaskNode_Action : public UBTTaskNode
 	
 public:
 	UCBTTaskNode_Action();
-
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
 public:
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
@@ -25,7 +23,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AI")
 		float rInterpSpeed = 3.f;
 
+	/** ¾ÆÁ÷ ¾È¾¸ */
 private:
 	float TotalTime = 0.0f;
-
 };

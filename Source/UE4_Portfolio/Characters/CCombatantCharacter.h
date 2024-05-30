@@ -49,13 +49,19 @@ protected:
 	
 	/** DataAsset State에 등록된 Animation을 실행 */
 protected:
-	virtual void Hitted();
-	virtual void Dead()    { Super::Dead(); }
-	virtual void Dodging();
+	virtual void Hitted() override;
+	virtual void Dead()    override;
+	virtual void Dodging() override;
+
+	/** 피격 방향 구하기 */
+protected:
+	int32 GetHitDirection(const FVector& start , const FVector& end , float& outAngle ,bool& outbIsLeft);
 
 protected:
 	/** TakeDamage시 Update되는 변수들 */
 	class AController* DamageInstigator;
 	float DamageValue;
 	float launchAmount = 1.f;
+
+	float hitAngle = 0.f;
 };
